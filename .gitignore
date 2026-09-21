@@ -1,5 +1,7 @@
 # Private strategy context for Claude Code — never commit (repo is public)
 CLAUDE.local.md
+CLAUDE.md
+TODO.md
 
 # OS / editor
 .DS_Store
