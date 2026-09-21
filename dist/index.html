@@ -116,10 +116,11 @@
     off-chain, wherever the agent already keeps it. A write reads back as
     <code>pending</code> while it sits in the mempool, then <code>confirmed</code>
     once the next block lands — about ten minutes later.</p>
-  <p>Records carry a finite on-chain lifetime. Re-write a record before it
-    lapses and it keeps its name; an expired record still reads back, but the
-    name is no longer held. Anchoring is something an agent renews, not a
-    write-once act.</p>
+  <p>What expires is the name, not the data. The transaction that wrote a
+    record stays on the chain and stays readable in its history. The name is
+    what an agent holds for a limited term: re-write the record before the term
+    runs out and the name stays with the agent; let it lapse and the name can
+    be claimed by someone else.</p>
 </section>
 
 <section class="section">
