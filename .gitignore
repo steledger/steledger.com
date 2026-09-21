@@ -1,0 +1,13 @@
+# Private strategy context for Claude Code — never commit (repo is public)
+CLAUDE.local.md
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
