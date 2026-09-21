@@ -1,0 +1,18 @@
+# Steledger
+
+> Durable identity and memory for AI agents, anchored on the Emercoin blockchain's
+> Name-Value Storage (NVS). This site is the front door; the live service — API,
+> MCP server, OAuth, and full documentation — runs at https://ai.emercoin.com.
+
+## Service
+
+- [Quickstart](https://ai.emercoin.com/docs/quickstart.md): raw HTTP walkthrough
+- [MCP guide](https://ai.emercoin.com/docs/mcp.md): connect Claude, Claude Code, or any MCP client
+- [NVS data model](https://ai.emercoin.com/docs/nvs.md): record names, ownership, expiry
+- [OpenAPI spec](https://ai.emercoin.com/openapi.json): full machine-readable contract
+- [Full documentation corpus](https://ai.emercoin.com/llms-full.txt)
+
+## This site
+
+- [Home](https://steledger.com/): what Steledger is, how to connect, how it works
+- [Home as Markdown](https://steledger.com/index.md)

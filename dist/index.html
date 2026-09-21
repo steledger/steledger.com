@@ -1,0 +1,149 @@
+<!doctype html><html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Durable identity and memory for AI agents, anchored on the Emercoin blockchain's Name-Value Storage.">
+  <link rel="canonical" href="https://steledger.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Steledger">
+  <meta property="og:title" content="Identity and memory for AI agents — Steledger">
+  <meta property="og:description" content="Durable identity and memory for AI agents, anchored on the Emercoin blockchain's Name-Value Storage.">
+  <meta property="og:url" content="https://steledger.com/">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Steledger", "url": "https://steledger.com/", "description": "Durable identity and memory for AI agents, anchored on the Emercoin blockchain."}, {"@type": "WebAPI", "name": "Steledger agent gateway", "url": "https://ai.emercoin.com", "documentation": "https://ai.emercoin.com/openapi.json", "description": "HTTP API and MCP server for AI agent identity and memory, anchored on Emercoin NVS."}]}</script>
+  <title>Identity and memory for AI agents — Steledger</title>
+  <link rel="alternate" type="text/markdown" href="/index.md">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="wordmark" href="/">
+    <img class="mark" src="/assets/logo.svg" alt="" width="22" height="22">
+    <span>Steledger</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://ai.emercoin.com/docs/quickstart.md">Docs</a>
+    <a href="https://github.com/emercoin/emer-ai-tools">GitHub</a>
+  </nav>
+</header>
+<main id="content">
+<section class="hero">
+  <h1>A durable record for AI agents</h1>
+  <p class="lead">
+    Steledger anchors an agent's identity and the hashes of what it remembers on a
+    public ledger that no single company owns or can switch off.
+  </p>
+</section>
+
+<section class="section">
+  <h2>What an agent can do</h2>
+  <ol class="capabilities">
+    <li>
+      <span class="num" aria-hidden="true">I.</span>
+      <div>
+        <h3>Claim an identity</h3>
+        <p>Bind a GitHub account to an on-chain record: <code>ai:gh:&lt;github_id&gt;</code>.</p>
+      </div>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">II.</span>
+      <div>
+        <h3>Anchor memory</h3>
+        <p>Write the content hash of a decision or artifact on-chain. The body stays
+          off-chain; the chain holds the fingerprint.</p>
+      </div>
+    </li>
+    <li>
+      <span class="num" aria-hidden="true">III.</span>
+      <div>
+        <h3>Prove it later</h3>
+        <p>Sign a challenge with the bound address key to show control of the
+          identity again, without a GitHub round-trip.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="section">
+  <h2>Connect</h2>
+  <p>Read tools work with no sign-in. Writing a record asks for GitHub, once.</p>
+
+  <div class="connect-block">
+    <h3>Claude</h3>
+    <p>Custom connectors need a paid Claude plan. Settings → Connectors → Add
+      custom connector, then paste:</p>
+    <pre><code>https://ai.emercoin.com/mcp</code></pre>
+  </div>
+
+  <div class="connect-block">
+    <h3>Claude Code</h3>
+    <p>Works on any plan.</p>
+    <pre><code>claude mcp add --transport http steledger https://ai.emercoin.com/mcp
+/mcp</code></pre>
+    <p class="caption">The second command signs you in with GitHub.</p>
+  </div>
+
+  <div class="connect-block">
+    <h3>Any MCP client</h3>
+    <p>Point it at the URL below over Streamable HTTP. OAuth with GitHub runs on
+      first use of a write tool; the read tools work with no sign-in at all.</p>
+    <pre><code>https://ai.emercoin.com/mcp</code></pre>
+  </div>
+
+  <div class="connect-block">
+    <h3>Raw HTTP</h3>
+    <p>No MCP support? Script directly against the API — see the
+      <a href="https://ai.emercoin.com/docs/quickstart.md">quickstart</a>.</p>
+  </div>
+</section>
+
+<section class="section">
+  <h2>How it works</h2>
+  <p>Every record Steledger writes is an Emercoin Name-Value Storage (NVS) entry —
+    a name/value pair, signed and stored on-chain, publicly readable by anyone.</p>
+  <p>Only a content hash goes on-chain; the material it fingerprints stays
+    off-chain, wherever the agent already keeps it. A write reads back as
+    <code>pending</code> while it sits in the mempool, then <code>confirmed</code>
+    once the next block lands — about ten minutes later.</p>
+</section>
+
+<section class="section">
+  <h2>Built on Emercoin, running since 2013</h2>
+  <p>Emercoin is an open-source public blockchain live since 2013. Name-Value
+    Storage has been one of its native features from early on, used for
+    decentralized DNS and certificate-based authentication long before agent
+    identity was a category anyone needed. The node software is open source and
+    the chain is public: read <a href="https://github.com/emercoin/emercoin">the
+    code</a>, or <a href="https://explorer.emercoin.com">watch it directly</a>.</p>
+</section>
+
+<section class="section">
+  <h2>Links</h2>
+  <ul class="link-list">
+    <li><a href="https://ai.emercoin.com/llms-full.txt">Full documentation</a></li>
+    <li><a href="https://ai.emercoin.com/openapi.json">OpenAPI spec</a></li>
+    <li><a href="https://ai.emercoin.com/mcp">MCP endpoint</a></li>
+    <li><a href="https://github.com/emercoin/emer-ai-tools">Source on GitHub</a></li>
+    <li><a href="/llms.txt">This site, machine-readable</a></li>
+  </ul>
+</section>
+</main>
+<footer class="site-footer">
+  <nav aria-label="Resources">
+    <ul class="footer-links">
+      <li><a href="https://ai.emercoin.com/docs/quickstart.md">Docs</a></li>
+      <li><a href="https://ai.emercoin.com/openapi.json">OpenAPI</a></li>
+      <li><a href="https://ai.emercoin.com/mcp">MCP</a></li>
+      <li><a href="https://github.com/emercoin/emer-ai-tools">GitHub</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+      <li><a href="/index.md">This page as Markdown</a></li>
+    </ul>
+  </nav>
+  <p class="fineprint">
+    Questions and issues: <a href="mailto:hello@steledger.com">hello@steledger.com</a>.
+    Security reports: <a href="mailto:security@steledger.com">security@steledger.com</a>.
+  </p>
+</footer>
+</body></html>
