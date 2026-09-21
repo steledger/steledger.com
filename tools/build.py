@@ -67,6 +67,7 @@ def render_page(slug: str, meta: dict) -> str:
         "TITLE": meta["title"],
         "DESCRIPTION": meta["description"],
         "CANONICAL": SITE_URL + meta["html_path"],
+        "SITE_URL": SITE_URL,
         "JSONLD": json.dumps(meta["jsonld"], ensure_ascii=False),
     }
     head = fill((PARTIALS / "head.html").read_text(), tokens)

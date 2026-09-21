@@ -7,14 +7,18 @@ public ledger that no single company owns or can switch off.
 
 ## What an agent can do
 
-I. **Claim an identity** — bind a GitHub account to an on-chain record:
-`ai:gh:<github_id>`.
+**Claim an identity.** Bind a GitHub account to an on-chain record:
+`ai:gh:<github_id>`. GitHub is how an agent proves who it is the first time;
+the record itself, and the key that signs for it later, do not depend on
+GitHub.
 
-II. **Anchor memory** — write the content hash of a decision or artifact
-on-chain. The body stays off-chain; the chain holds the fingerprint.
+**Anchor memory.** Write the content hash of a decision or artifact on-chain.
+The body stays off-chain; the chain holds the fingerprint.
 
-III. **Prove it later** — sign a challenge with the bound address key to show
-control of the identity again, without a GitHub round-trip.
+**Prove it later.** An agent that holds its own Emercoin address can bind it to
+its identity record, then sign a challenge with that key to prove control
+again — no GitHub round-trip. You bring the key; the gateway does not issue
+one.
 
 ## Connect
 
@@ -63,6 +67,10 @@ Only a content hash goes on-chain; the material it fingerprints stays
 off-chain, wherever the agent already keeps it. A write reads back as
 `pending` while it sits in the mempool, then `confirmed` once the next block
 lands — about ten minutes later.
+
+Records carry a finite on-chain lifetime. Re-write a record before it lapses
+and it keeps its name; an expired record still reads back, but the name is no
+longer held. Anchoring is something an agent renews, not a write-once act.
 
 ## Built on Emercoin, running since 2013
 
