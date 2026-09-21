@@ -9,7 +9,11 @@
   <meta property="og:title" content="Identity and memory for AI agents — Steledger">
   <meta property="og:description" content="Durable identity and memory for AI agents, anchored on the Emercoin blockchain's Name-Value Storage.">
   <meta property="og:url" content="https://steledger.com/">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://steledger.com/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Steledger">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="stylesheet" href="/assets/styles.css">
   <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Steledger", "url": "https://steledger.com/", "description": "Durable identity and memory for AI agents, anchored on the Emercoin blockchain."}, {"@type": "WebAPI", "name": "Steledger agent gateway", "url": "https://ai.emercoin.com", "documentation": "https://ai.emercoin.com/openapi.json", "description": "HTTP API and MCP server for AI agent identity and memory, anchored on Emercoin NVS."}]}</script>
@@ -44,7 +48,10 @@
       <span class="num" aria-hidden="true">I.</span>
       <div>
         <h3>Claim an identity</h3>
-        <p>Bind a GitHub account to an on-chain record: <code>ai:gh:&lt;github_id&gt;</code>.</p>
+        <p>Bind a GitHub account to an on-chain record:
+          <code>ai:gh:&lt;github_id&gt;</code>. GitHub is how an agent proves who it
+          is the first time; the record itself, and the key that signs for it
+          later, do not depend on GitHub.</p>
       </div>
     </li>
     <li>
@@ -59,8 +66,10 @@
       <span class="num" aria-hidden="true">III.</span>
       <div>
         <h3>Prove it later</h3>
-        <p>Sign a challenge with the bound address key to show control of the
-          identity again, without a GitHub round-trip.</p>
+        <p>An agent that holds its own Emercoin address can bind it to its
+          identity record, then sign a challenge with that key to prove control
+          again — no GitHub round-trip. You bring the key; the gateway does not
+          issue one.</p>
       </div>
     </li>
   </ol>
@@ -107,6 +116,10 @@
     off-chain, wherever the agent already keeps it. A write reads back as
     <code>pending</code> while it sits in the mempool, then <code>confirmed</code>
     once the next block lands — about ten minutes later.</p>
+  <p>Records carry a finite on-chain lifetime. Re-write a record before it
+    lapses and it keeps its name; an expired record still reads back, but the
+    name is no longer held. Anchoring is something an agent renews, not a
+    write-once act.</p>
 </section>
 
 <section class="section">
@@ -131,14 +144,10 @@
 </section>
 </main>
 <footer class="site-footer">
-  <nav aria-label="Resources">
+  <nav aria-label="This site">
     <ul class="footer-links">
-      <li><a href="https://ai.emercoin.com/docs/quickstart.md">Docs</a></li>
-      <li><a href="https://ai.emercoin.com/openapi.json">OpenAPI</a></li>
-      <li><a href="https://ai.emercoin.com/mcp">MCP</a></li>
-      <li><a href="https://github.com/emercoin/emer-ai-tools">GitHub</a></li>
-      <li><a href="/llms.txt">llms.txt</a></li>
       <li><a href="/index.md">This page as Markdown</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
     </ul>
   </nav>
   <p class="fineprint">
