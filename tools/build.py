@@ -11,9 +11,11 @@ ASSETS = ROOT / "assets"
 DIST = ROOT / "dist"
 
 SITE_URL = "https://steledger.com"
-# Moves to https://api.steledger.com once the gateway migration ships (see
-# CLAUDE.local.md). This is the ONLY place a service hostname is hard-coded.
-API_BASE = "https://ai.emercoin.com"
+# The canonical service host since the gateway migration of 2026-09-22.
+# ai.emercoin.com still answers reads, but its OAuth metadata now points here, so
+# it is no longer a working sign-in target. This is the ONLY place a service
+# hostname is hard-coded.
+API_BASE = "https://api.steledger.com"
 
 EXPLORER = "https://explorer.emercoin.com"
 

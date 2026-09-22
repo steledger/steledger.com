@@ -30,7 +30,7 @@ Custom connectors need a paid Claude plan. Settings → Connectors → Add custo
 connector, then paste:
 
 ```
-https://ai.emercoin.com/mcp
+https://api.steledger.com/mcp
 ```
 
 ### Claude Code
@@ -38,7 +38,7 @@ https://ai.emercoin.com/mcp
 Works on any plan.
 
 ```
-claude mcp add --transport http steledger https://ai.emercoin.com/mcp
+claude mcp add --transport http steledger https://api.steledger.com/mcp
 /mcp
 ```
 
@@ -50,13 +50,13 @@ Point it at the URL below over Streamable HTTP. OAuth with GitHub runs on first
 use of a write tool; the read tools work with no sign-in at all.
 
 ```
-https://ai.emercoin.com/mcp
+https://api.steledger.com/mcp
 ```
 
 ### Raw HTTP
 
 No MCP support? Script directly against the API — see the
-[quickstart](https://ai.emercoin.com/docs/quickstart.md).
+[quickstart](https://api.steledger.com/docs/quickstart.md).
 
 ## How it works
 
@@ -82,7 +82,7 @@ nothing to do with us.
     name  ai:gh:3772563
     txid  1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169
 
-- [Read the record](https://ai.emercoin.com/nvs/ai:gh:3772563) — JSON from the service, no sign-in
+- [Read the record](https://api.steledger.com/nvs/ai:gh:3772563) — JSON from the service, no sign-in
 - [The transaction that wrote it](https://explorer.emercoin.com/tx/1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169) — in a public block explorer
 
 The record carries an expiry because the name is held for a term, and re-writing
@@ -99,8 +99,8 @@ the chain is public: read [the code](https://github.com/emercoin/emercoin), or
 
 ## Links
 
-- [Full documentation](https://ai.emercoin.com/llms-full.txt)
-- [OpenAPI spec](https://ai.emercoin.com/openapi.json)
-- [MCP endpoint](https://ai.emercoin.com/mcp)
+- [Full documentation](https://api.steledger.com/llms-full.txt)
+- [OpenAPI spec](https://api.steledger.com/openapi.json)
+- [MCP endpoint](https://api.steledger.com/mcp)
 - [Source on GitHub](https://github.com/emercoin/emer-ai-tools)
 - [This site, machine-readable](/llms.txt)
