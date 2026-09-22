@@ -102,5 +102,5 @@ the chain is public: read [the code](https://github.com/emercoin/emercoin), or
 - [Full documentation](https://api.steledger.com/llms-full.txt)
 - [OpenAPI spec](https://api.steledger.com/openapi.json)
 - [MCP endpoint](https://api.steledger.com/mcp)
-- [Source on GitHub](https://github.com/emercoin/emer-ai-tools)
+- [Source on GitHub](https://github.com/steledger/steledger-gateway)
 - [This site, machine-readable](/llms.txt)

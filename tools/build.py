@@ -19,6 +19,10 @@ API_BASE = "https://api.steledger.com"
 
 EXPLORER = "https://explorer.emercoin.com"
 
+# The gateway source. Moved to the steledger org on 2026-09-22; GitHub redirects
+# the old URL, but a published link should name where the code actually lives.
+SOURCE_REPO = "https://github.com/steledger/steledger-gateway"
+
 # The one live record the site offers as evidence. Re-write it on-chain before its
 # term lapses, then update the txid here and rebuild — a lapsed record on a page
 # about durability is worse than no record at all. Nothing else references these.
@@ -30,6 +34,7 @@ PROOF = {
 # Site-wide substitutions for every source fragment and markdown twin.
 TOKENS = {
     "API_BASE": API_BASE,
+    "SOURCE_REPO": SOURCE_REPO,
     "PROOF_NAME": PROOF["name"],
     "PROOF_TXID": PROOF["txid"],
     "PROOF_READ_URL": f"{API_BASE}/nvs/{PROOF['name']}",
