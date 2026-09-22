@@ -223,7 +223,7 @@ main {
   color: var(--ink-soft);
 }
 
-.connect-block .caption {
+.caption {
   font-size: 0.9rem;
   color: var(--ink-faint);
   margin-top: 0.5em;
