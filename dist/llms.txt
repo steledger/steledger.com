@@ -16,3 +16,6 @@
 
 - [Home](https://steledger.com/): what Steledger is, how to connect, how it works
 - [Home as Markdown](https://steledger.com/index.md)
+- [Privacy and security](https://steledger.com/privacy.html): what is kept, what is public
+  and permanent, how to report a vulnerability
+- [Privacy and security as Markdown](https://steledger.com/privacy.md)
