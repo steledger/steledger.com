@@ -188,8 +188,6 @@ def main():
     (DIST / "robots.txt").write_text(build_robots())
     (DIST / "llms.txt").write_text(build_llms())
     (DIST / "sitemap.xml").write_text(build_sitemap())
-    (DIST / "CNAME").write_text("steledger.com\n")
-    (DIST / ".nojekyll").write_text("")
 
     print(f"Built {len(PAGES)} page(s) + 404 into {DIST}")
 
