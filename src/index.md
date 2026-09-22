@@ -102,5 +102,5 @@ the chain is public: read [the code](https://github.com/emercoin/emercoin), or
 - [Full documentation]({{API_BASE}}/llms-full.txt)
 - [OpenAPI spec]({{API_BASE}}/openapi.json)
 - [MCP endpoint]({{API_BASE}}/mcp)
-- [Source on GitHub](https://github.com/emercoin/emer-ai-tools)
+- [Source on GitHub]({{SOURCE_REPO}})
 - [This site, machine-readable](/llms.txt)
