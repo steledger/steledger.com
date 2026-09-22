@@ -5,6 +5,9 @@ TODO.md
 INFRA.md
 MIGRATION.md
 
+# Wallet backups — key material, never commit
+backup/
+
 # OS / editor
 .DS_Store
 *.swp
