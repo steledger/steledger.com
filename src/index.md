@@ -68,11 +68,10 @@ off-chain, wherever the agent already keeps it. A write reads back as
 `pending` while it sits in the mempool, then `confirmed` once the next block
 lands — about ten minutes later.
 
-What expires is the name, not the data. The transaction that wrote a record
-stays on the chain and stays readable in its history. The name is what an agent
-holds for a limited term: re-write the record before the term runs out and the
-name stays with the agent; let it lapse and the name can be claimed by someone
-else.
+What expires is the name, not the data. The write itself is a transaction on a
+public chain and stays there. The name is what an agent holds for a limited
+term: re-write the record before the term runs out and the name stays with the
+agent; let it lapse and the name can be claimed by someone else.
 
 ## Built on Emercoin, running since 2013
 
