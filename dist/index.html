@@ -16,7 +16,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="stylesheet" href="/assets/styles.css">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Steledger", "url": "https://steledger.com/", "description": "Durable identity and memory for AI agents, anchored on the Emercoin blockchain."}, {"@type": "WebAPI", "name": "Steledger agent gateway", "url": "https://ai.emercoin.com", "documentation": "https://ai.emercoin.com/openapi.json", "description": "HTTP API and MCP server for AI agent identity and memory, anchored on Emercoin NVS."}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Steledger", "url": "https://steledger.com/", "description": "Durable identity and memory for AI agents, anchored on the Emercoin blockchain."}, {"@type": "WebAPI", "name": "Steledger agent gateway", "url": "https://api.steledger.com", "documentation": "https://api.steledger.com/openapi.json", "description": "HTTP API and MCP server for AI agent identity and memory, anchored on Emercoin NVS."}]}</script>
   <title>Identity and memory for AI agents — Steledger</title>
   <link rel="alternate" type="text/markdown" href="/index.md">
 </head>
@@ -28,7 +28,7 @@
     <span>Steledger</span>
   </a>
   <nav class="site-nav" aria-label="Primary">
-    <a href="https://ai.emercoin.com/docs/quickstart.md">Docs</a>
+    <a href="https://api.steledger.com/docs/quickstart.md">Docs</a>
     <a href="https://github.com/emercoin/emer-ai-tools">GitHub</a>
   </nav>
 </header>
@@ -83,13 +83,13 @@
     <h3>Claude</h3>
     <p>Custom connectors need a paid Claude plan. Settings → Connectors → Add
       custom connector, then paste:</p>
-    <pre><code>https://ai.emercoin.com/mcp</code></pre>
+    <pre><code>https://api.steledger.com/mcp</code></pre>
   </div>
 
   <div class="connect-block">
     <h3>Claude Code</h3>
     <p>Works on any plan.</p>
-    <pre><code>claude mcp add --transport http steledger https://ai.emercoin.com/mcp
+    <pre><code>claude mcp add --transport http steledger https://api.steledger.com/mcp
 /mcp</code></pre>
     <p class="caption">The second command signs you in with GitHub.</p>
   </div>
@@ -98,13 +98,13 @@
     <h3>Any MCP client</h3>
     <p>Point it at the URL below over Streamable HTTP. OAuth with GitHub runs on
       first use of a write tool; the read tools work with no sign-in at all.</p>
-    <pre><code>https://ai.emercoin.com/mcp</code></pre>
+    <pre><code>https://api.steledger.com/mcp</code></pre>
   </div>
 
   <div class="connect-block">
     <h3>Raw HTTP</h3>
     <p>No MCP support? Script directly against the API — see the
-      <a href="https://ai.emercoin.com/docs/quickstart.md">quickstart</a>.</p>
+      <a href="https://api.steledger.com/docs/quickstart.md">quickstart</a>.</p>
   </div>
 </section>
 
@@ -131,7 +131,7 @@
   <pre><code>name  ai:gh:3772563
 txid  1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169</code></pre>
   <ul class="link-list">
-    <li><a href="https://ai.emercoin.com/nvs/ai:gh:3772563">Read the record</a> — JSON from the service, no sign-in</li>
+    <li><a href="https://api.steledger.com/nvs/ai:gh:3772563">Read the record</a> — JSON from the service, no sign-in</li>
     <li><a href="https://explorer.emercoin.com/tx/1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169">The transaction that wrote it</a> — in a public block explorer</li>
   </ul>
   <p class="caption">The record carries an expiry because the name is held for a
@@ -151,9 +151,9 @@ txid  1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169</code></p
 <section class="section">
   <h2>Links</h2>
   <ul class="link-list">
-    <li><a href="https://ai.emercoin.com/llms-full.txt">Full documentation</a></li>
-    <li><a href="https://ai.emercoin.com/openapi.json">OpenAPI spec</a></li>
-    <li><a href="https://ai.emercoin.com/mcp">MCP endpoint</a></li>
+    <li><a href="https://api.steledger.com/llms-full.txt">Full documentation</a></li>
+    <li><a href="https://api.steledger.com/openapi.json">OpenAPI spec</a></li>
+    <li><a href="https://api.steledger.com/mcp">MCP endpoint</a></li>
     <li><a href="https://github.com/emercoin/emer-ai-tools">Source on GitHub</a></li>
     <li><a href="/llms.txt">This site, machine-readable</a></li>
   </ul>
