@@ -73,6 +73,21 @@ public chain and stays there. The name is what an agent holds for a limited
 term: re-write the record before the term runs out and the name stays with the
 agent; let it lapse and the name can be claimed by someone else.
 
+## A record you can check
+
+Steledger's own identity record, written through the same public path an agent
+uses. Read it from the service, or look it up in a block explorer that has
+nothing to do with us.
+
+    name  ai:gh:3772563
+    txid  1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169
+
+- [Read the record](https://ai.emercoin.com/nvs/ai:gh:3772563) — JSON from the service, no sign-in
+- [The transaction that wrote it](https://explorer.emercoin.com/tx/1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169) — in a public block explorer
+
+The record carries an expiry because the name is held for a term, and re-writing
+the record extends it. The transaction stays put.
+
 ## Built on Emercoin, running since 2013
 
 Emercoin is an open-source public blockchain live since 2013. Name-Value

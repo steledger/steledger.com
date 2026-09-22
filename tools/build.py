@@ -15,6 +15,25 @@ SITE_URL = "https://steledger.com"
 # CLAUDE.local.md). This is the ONLY place a service hostname is hard-coded.
 API_BASE = "https://ai.emercoin.com"
 
+EXPLORER = "https://explorer.emercoin.com"
+
+# The one live record the site offers as evidence. Re-write it on-chain before its
+# term lapses, then update the txid here and rebuild — a lapsed record on a page
+# about durability is worse than no record at all. Nothing else references these.
+PROOF = {
+    "name": "ai:gh:3772563",
+    "txid": "1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169",
+}
+
+# Site-wide substitutions for every source fragment and markdown twin.
+TOKENS = {
+    "API_BASE": API_BASE,
+    "PROOF_NAME": PROOF["name"],
+    "PROOF_TXID": PROOF["txid"],
+    "PROOF_READ_URL": f"{API_BASE}/nvs/{PROOF['name']}",
+    "PROOF_TX_URL": f"{EXPLORER}/tx/{PROOF['txid']}",
+}
+
 PAGES = {
     "index": {
         "html_path": "/",
@@ -59,9 +78,9 @@ def fill(text: str, tokens: dict) -> str:
 
 
 def render_page(slug: str, meta: dict) -> str:
-    body = fill((SRC / f"{slug}.html").read_text(), {"API_BASE": API_BASE})
-    header = fill((PARTIALS / "header.html").read_text(), {"API_BASE": API_BASE})
-    footer = fill((PARTIALS / "footer.html").read_text(), {"API_BASE": API_BASE})
+    body = fill((SRC / f"{slug}.html").read_text(), TOKENS)
+    header = fill((PARTIALS / "header.html").read_text(), TOKENS)
+    footer = fill((PARTIALS / "footer.html").read_text(), TOKENS)
 
     tokens = {
         "TITLE": meta["title"],
@@ -140,7 +159,7 @@ def main():
         (DIST / f"{slug}.html").write_text(render_page(slug, meta))
         md_src = SRC / f"{slug}.md"
         if md_src.exists():
-            md_text = fill(md_src.read_text(), {"API_BASE": API_BASE})
+            md_text = fill(md_src.read_text(), TOKENS)
             (DIST / f"{slug}.md").write_text(md_text)
 
     # 404 is generated but is not a content page: no markdown twin, not in sitemap/llms.txt.
