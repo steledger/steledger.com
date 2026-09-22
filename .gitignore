@@ -10,6 +10,9 @@ MIGRATION.md
 # Wallet backups — key material, never commit
 backup/
 
+# Local Claude Code config — may hold hosts, paths and permission rules
+.claude/
+
 # OS / editor
 .DS_Store
 *.swp
