@@ -75,6 +75,25 @@ PAGES = {
             ],
         },
     },
+    "privacy": {
+        "html_path": "/privacy.html",
+        "md_path": "/privacy.md",
+        "title": "Privacy and security",
+        "description": (
+            "What Steledger keeps, what it never had, and what goes on a public "
+            "chain and cannot be taken back."
+        ),
+        "jsonld": {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Privacy and security — Steledger",
+            "url": SITE_URL + "/privacy.html",
+            "description": (
+                "No cookies or analytics; access logs with the client address "
+                "stripped; what a write puts on a public chain, permanently."
+            ),
+        },
+    },
 }
 
 
@@ -85,9 +104,12 @@ def fill(text: str, tokens: dict) -> str:
 
 
 def render_page(slug: str, meta: dict) -> str:
-    body = fill((SRC / f"{slug}.html").read_text(), TOKENS)
-    header = fill((PARTIALS / "header.html").read_text(), TOKENS)
-    footer = fill((PARTIALS / "footer.html").read_text(), TOKENS)
+    # MD_PATH is per-page: the footer offers "this page as Markdown", which on any
+    # page but the home page used to be a link to a different page.
+    page_tokens = {**TOKENS, "MD_PATH": meta.get("md_path", "/index.md")}
+    body = fill((SRC / f"{slug}.html").read_text(), page_tokens)
+    header = fill((PARTIALS / "header.html").read_text(), page_tokens)
+    footer = fill((PARTIALS / "footer.html").read_text(), page_tokens)
 
     tokens = {
         "TITLE": meta["title"],
@@ -140,6 +162,9 @@ def build_llms() -> str:
 
 - [Home]({SITE_URL}/): what Steledger is, how to connect, how it works
 - [Home as Markdown]({SITE_URL}/index.md)
+- [Privacy and security]({SITE_URL}/privacy.html): what is kept, what is public
+  and permanent, how to report a vulnerability
+- [Privacy and security as Markdown]({SITE_URL}/privacy.md)
 """
 
 

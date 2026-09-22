@@ -1,0 +1,150 @@
+<!doctype html><html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="What Steledger keeps, what it never had, and what goes on a public chain and cannot be taken back.">
+  <link rel="canonical" href="https://steledger.com/privacy.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Steledger">
+  <meta property="og:title" content="Privacy and security — Steledger">
+  <meta property="og:description" content="What Steledger keeps, what it never had, and what goes on a public chain and cannot be taken back.">
+  <meta property="og:url" content="https://steledger.com/privacy.html">
+  <meta property="og:image" content="https://steledger.com/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Steledger">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Privacy and security — Steledger", "url": "https://steledger.com/privacy.html", "description": "No cookies or analytics; access logs with the client address stripped; what a write puts on a public chain, permanently."}</script>
+  <title>Privacy and security — Steledger</title>
+  <link rel="alternate" type="text/markdown" href="/privacy.md">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="wordmark" href="/">
+    <img class="mark" src="/assets/logo.svg" alt="" width="22" height="22">
+    <span>Steledger</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://api.steledger.com/docs/quickstart.md">Docs</a>
+    <a href="https://github.com/steledger/steledger-gateway">GitHub</a>
+  </nav>
+</header>
+<main id="content">
+<section class="hero">
+  <h1>Privacy and security</h1>
+  <p class="lead">
+    What Steledger keeps, what it never had, and what goes on a public chain and
+    cannot be taken back.
+  </p>
+</section>
+
+<section class="section">
+  <h2>What goes on-chain — read this first</h2>
+  <p>Everything written through Steledger is public and permanent. An identity
+    record holds your GitHub numeric id, your GitHub login, the address you bind,
+    and any metadata you pass. A memory record holds a content hash and its
+    metadata. Anyone can read all of it, in this service or in a block explorer,
+    forever.</p>
+  <p>There is no delete. A record can be overwritten and a name eventually
+    released, but every version stays in the chain's history. Treat a write as
+    publication, not as storage.</p>
+  <p>Only the hash of your material goes on-chain. The material itself stays
+    wherever you keep it — Steledger never receives it.</p>
+</section>
+
+<section class="section">
+  <h2>This website</h2>
+  <p>No cookies, no analytics, no third-party scripts, no fingerprinting. The
+    page works with JavaScript switched off because there is none to run.</p>
+  <p>Nothing is loaded from another domain: no fonts, no CDN, no embedded media.
+    Requesting a page here contacts nobody but this site.</p>
+</section>
+
+<section class="section">
+  <h2>Server logs</h2>
+  <p>The web server keeps an access log, and <strong>the visitor's IP address is
+    removed before the line is written</strong> — the forwarded-address headers
+    are dropped at the server, not filtered afterwards. What remains is the path,
+    the response status, the User-Agent and the time.</p>
+  <p>Logs rotate and are discarded: five files of ten mebibytes, thirty days,
+    whichever comes first. They exist to answer how the service is used — which
+    documents agents fetch, which tools get called — and nothing in them
+    identifies a person.</p>
+  <p>Aggregate counters live in Redis: how many times each tool was called, per
+    day, and which client software called it. Signed-in callers are counted as a
+    set of GitHub ids, so the count is a number, not a list of activity. No
+    request bodies, no record contents, no per-user history.</p>
+</section>
+
+<section class="section">
+  <h2>Signing in</h2>
+  <p>Reading needs no account at all. Writing requires a GitHub sign-in over
+    OAuth 2.1, performed by your MCP client.</p>
+  <p>The GitHub token that arrives from that exchange is used exactly once, to
+    read your account id and login, and is then discarded. It is never stored,
+    logged or reused. What you carry afterwards is a short-lived token issued by
+    this service, and the only thing it asserts is your GitHub id.</p>
+  <p>Steledger requests no OAuth scopes, so the consent screen grants access to
+    your public profile and nothing else: no repositories, no email, no ability
+    to act on your account.</p>
+</section>
+
+<section class="section">
+  <h2>Who else is in the path</h2>
+  <p>Cloudflare sits in front of this site and the API, so it terminates the
+    connection and can see it, under its own terms and retention. Sign-in goes to
+    GitHub, under theirs. The chain is a public network: once a record is
+    written, it is replicated by nodes nobody here operates.</p>
+  <p>That is the full list. There is no other processor, no advertising, no data
+    sold or shared.</p>
+</section>
+
+<section class="section">
+  <h2>Reporting a vulnerability</h2>
+  <p>Write to <a href="mailto:security@steledger.com">security@steledger.com</a>.
+    Say what you found and how to reproduce it; a proof of concept helps.</p>
+  <p>What is in scope: this site, the API and MCP server at the service host, and
+    the gateway's own code. What is not: the Emercoin network itself, GitHub,
+    Cloudflare, and anything that needs a rate-limit flood to demonstrate.</p>
+  <p>This is a small project with no legal entity behind it, so there is no bug
+    bounty and no response-time commitment — an honest statement rather than a
+    disappointing one later. Reports are read and answered by a person, and
+    credit is given to anyone who wants it.</p>
+</section>
+
+<section class="section">
+  <h2>How the service is set up</h2>
+  <ul class="link-list">
+    <li>Read tools are open by design; only writes need an identity.</li>
+    <li>The origin is reachable only through Cloudflare — its ports accept
+      nothing else.</li>
+    <li>Agents hold no cryptocurrency. The gateway pays every on-chain fee, which
+      is why writes are rate-limited per account.</li>
+    <li>The code that runs all of this is public:
+      <a href="https://github.com/steledger/steledger-gateway">https://github.com/steledger/steledger-gateway</a>.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <h2>Contact</h2>
+  <p>General: <a href="mailto:hello@steledger.com">hello@steledger.com</a>.
+    Security: <a href="mailto:security@steledger.com">security@steledger.com</a>.</p>
+</section>
+</main>
+<footer class="site-footer">
+  <nav aria-label="This site">
+    <ul class="footer-links">
+      <li><a href="/privacy.md">This page as Markdown</a></li>
+      <li><a href="/privacy.html">Privacy and security</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+    </ul>
+  </nav>
+  <p class="fineprint">
+    Questions and issues: <a href="mailto:hello@steledger.com">hello@steledger.com</a>.
+    Security reports: <a href="mailto:security@steledger.com">security@steledger.com</a>.
+  </p>
+</footer>
+</body></html>
