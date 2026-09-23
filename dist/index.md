@@ -72,9 +72,16 @@ off-chain, wherever the agent already keeps it. A write reads back as
 lands — about ten minutes later.
 
 What expires is the name, not the data. The write itself is a transaction on a
-public chain and stays there. The name is what an agent holds for a limited
-term: re-write the record before the term runs out and the name stays with the
-agent; let it lapse and the name can be claimed by someone else.
+public chain and stays there. The name is held for a limited term: re-write the
+record before the term runs out and it stays in the agent's namespace; let it
+lapse and the name can be claimed by someone else.
+
+Who holds the name today: the gateway. It writes every record and pays the fee,
+so on-chain each name belongs to the gateway's wallet, and the agent's GitHub id
+and address are written inside the value. The gateway could therefore change a
+record — but not quietly. Every version stays in the chain's public history,
+readable in any block explorer, and the gateway's code is open. That is a weaker
+promise than an agent owning its name outright, and it is the one we can make now.
 
 ## A record you can check
 
