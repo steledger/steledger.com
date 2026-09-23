@@ -3,15 +3,18 @@
 
     python tools/announce.py <slug>          # show the post text, send nothing
     python tools/announce.py <slug> --send   # post it
+    python tools/announce.py --check         # refresh the token, show account and scopes
 
 Run by hand after the post is live — there is no CI, and a person should see the
 text before it goes out. Refuses to send unless the post's URL already answers
 200, so an announcement can never point at a page that is not deployed yet.
 
-Credentials come from .common_envs (gitignored): X_OAUTH_CONSUMER_KEY,
-X_OAUTH_CONSUMER_KEY_SECRET, X_OAUTH_ACCESS_TOKEN, X_OAUTH_ACCESS_TOKEN_SECRET.
-The access token must be generated for @steledger after the app was given
-Read and Write permission, or X will refuse the write.
+Auth is OAuth 2.0 user context for @steledger, from .common_envs (gitignored):
+X_OAUTH2_CLIENT_ID, X_OAUTH2_CLIENT_SECRET, X_OAUTH2_ACCESS_TOKEN and
+X_OAUTH2_REFRESH_TOKEN. An access token lives about two hours, so every run
+refreshes it first — and X rotates the refresh token on each use, so the new
+pair is written back to .common_envs before anything else happens. If a run
+dies between the two, regenerate the tokens in the developer portal.
 
 X charges per post created, more for a post with a link; see
 https://docs.x.com/x-api/getting-started/pricing.
@@ -19,12 +22,8 @@ https://docs.x.com/x-api/getting-started/pricing.
 from __future__ import annotations
 
 import base64
-import hashlib
-import hmac
 import json
-import secrets
 import sys
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -35,6 +34,8 @@ import build  # noqa: E402 — POSTS, KINDS, SITE_URL: one source for post metad
 
 ENV_FILE = build.ROOT / ".common_envs"
 TWEETS = "https://api.x.com/2/tweets"
+ME = "https://api.x.com/2/users/me"
+TOKEN_URL = "https://api.x.com/2/oauth2/token"
 LIMIT = 280
 URL_WEIGHT = 23  # X counts every link as 23 characters, whatever its length
 
@@ -62,26 +63,63 @@ def compose(post: dict) -> tuple[str, str]:
     return f"{head}\n\n{body}\n\n{url}", url
 
 
-def _pct(s: str) -> str:
-    return urllib.parse.quote(s, safe="~")
+def save_tokens(access: str, refresh: str) -> None:
+    """Rewrite the two token lines of .common_envs in place, leaving the rest alone."""
+    lines = ENV_FILE.read_text().splitlines()
+    new = {"X_OAUTH2_ACCESS_TOKEN": access, "X_OAUTH2_REFRESH_TOKEN": refresh}
+    out, seen = [], set()
+    for line in lines:
+        key = line.strip().removeprefix("export ").split("=", 1)[0].strip()
+        if key in new:
+            out.append(f"{key}={new[key]}")
+            seen.add(key)
+        else:
+            out.append(line)
+    out += [f"{k}={v}" for k, v in new.items() if k not in seen]
+    tmp = ENV_FILE.with_name(ENV_FILE.name + ".tmp")
+    tmp.write_text("\n".join(out) + "\n")
+    tmp.chmod(0o600)
+    tmp.replace(ENV_FILE)
 
 
-def oauth1_header(method: str, url: str, env: dict) -> str:
-    """OAuth 1.0a HMAC-SHA1. A JSON body is not part of the signature base string."""
-    params = {
-        "oauth_consumer_key": env["X_OAUTH_CONSUMER_KEY"],
-        "oauth_nonce": secrets.token_hex(16),
-        "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp": str(int(time.time())),
-        "oauth_token": env["X_OAUTH_ACCESS_TOKEN"],
-        "oauth_version": "1.0",
-    }
-    param_str = "&".join(f"{_pct(k)}={_pct(v)}" for k, v in sorted(params.items()))
-    base = "&".join([method.upper(), _pct(url), _pct(param_str)])
-    key = f"{_pct(env['X_OAUTH_CONSUMER_KEY_SECRET'])}&{_pct(env['X_OAUTH_ACCESS_TOKEN_SECRET'])}"
-    digest = hmac.new(key.encode(), base.encode(), hashlib.sha1).digest()
-    params["oauth_signature"] = base64.b64encode(digest).decode()
-    return "OAuth " + ", ".join(f'{_pct(k)}="{_pct(v)}"' for k, v in sorted(params.items()))
+def fresh_token(env: dict) -> tuple[str, str]:
+    """Exchange the refresh token for a new pair, persist it, return (access, scope)."""
+    basic = base64.b64encode(
+        f"{env['X_OAUTH2_CLIENT_ID']}:{env['X_OAUTH2_CLIENT_SECRET']}".encode()
+    ).decode()
+    req = urllib.request.Request(
+        TOKEN_URL,
+        data=urllib.parse.urlencode({
+            "grant_type": "refresh_token",
+            "refresh_token": env["X_OAUTH2_REFRESH_TOKEN"],
+            "client_id": env["X_OAUTH2_CLIENT_ID"],
+        }).encode(),
+        method="POST",
+        headers={"Authorization": f"Basic {basic}",
+                 "Content-Type": "application/x-www-form-urlencoded"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            data = json.load(resp)
+    except urllib.error.HTTPError as e:
+        sys.exit(f"token refresh failed: {e.code} {e.read().decode(errors='replace')}\n"
+                 "Regenerate the OAuth 2.0 tokens for @steledger in the developer portal.")
+    save_tokens(data["access_token"], data["refresh_token"])
+    return data["access_token"], data.get("scope", "")
+
+
+def api(method: str, url: str, token: str, body: dict | None = None) -> dict:
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode() if body is not None else None,
+        method=method,
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as e:
+        sys.exit(f"X refused {method} {url}: {e.code} {e.read().decode(errors='replace')}")
 
 
 def is_live(url: str) -> bool:
@@ -93,6 +131,14 @@ def is_live(url: str) -> bool:
 
 
 def main() -> None:
+    if "--check" in sys.argv[1:]:
+        token, scope = fresh_token(load_env())
+        me = api("GET", ME, token)["data"]
+        print(f"@{me['username']} (id {me['id']}); scopes: {scope}")
+        if "tweet.write" not in scope.split():
+            print("Missing tweet.write: this token cannot post.")
+        return
+
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if len(args) != 1:
         sys.exit(__doc__)
@@ -108,21 +154,8 @@ def main() -> None:
     if not is_live(url):
         sys.exit(f"\n{url} is not live yet — push and let the site sync first.")
 
-    env = load_env()
-    req = urllib.request.Request(
-        TWEETS,
-        data=json.dumps({"text": text}).encode(),
-        method="POST",
-        headers={
-            "Authorization": oauth1_header("POST", TWEETS, env),
-            "Content-Type": "application/json",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            tweet_id = json.load(resp)["data"]["id"]
-    except urllib.error.HTTPError as e:
-        sys.exit(f"\nX refused the post: {e.code} {e.read().decode(errors='replace')}")
+    token, _ = fresh_token(load_env())
+    tweet_id = api("POST", TWEETS, token, {"text": text})["data"]["id"]
     print(f"\nPosted: https://x.com/steledger/status/{tweet_id}")
 
 
