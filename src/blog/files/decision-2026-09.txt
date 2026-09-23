@@ -1,0 +1,16 @@
+Decision record, steledger.com, 23 September 2026
+
+Decision: add a blog with an Atom feed to steledger.com.
+
+Why: the home page says what Steledger is and how to connect it. It does not say
+why an agent would want a durable identity or an anchored memory, and that is the
+question people and agents actually ask. A few dense, technical posts answer it
+better than a long home page.
+
+Constraints: stdlib-only build, no JavaScript, a Markdown twin for every page,
+every claim checked against the live service.
+
+This file is the example anchored in "Prove what your agent knew, and when":
+https://steledger.com/blog/anchor-from-claude-code.html
+
+Random line, so the hash cannot be guessed from the text: 6e1fde6ae34798265f335ec082039066

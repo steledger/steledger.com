@@ -1,0 +1,197 @@
+<!doctype html><html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.">
+  <link rel="canonical" href="https://steledger.com/blog/anchor-from-claude-code.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Steledger">
+  <meta property="og:title" content="Prove what your agent knew, and when — Steledger">
+  <meta property="og:description" content="Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.">
+  <meta property="og:url" content="https://steledger.com/blog/anchor-from-claude-code.html">
+  <meta property="og:image" content="https://steledger.com/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Steledger">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="alternate" type="application/atom+xml" title="Steledger Blog" href="/feed.xml">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Prove what your agent knew, and when", "description": "Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.", "url": "https://steledger.com/blog/anchor-from-claude-code.html", "mainEntityOfPage": "https://steledger.com/blog/anchor-from-claude-code.html", "datePublished": "2026-09-23", "dateModified": "2026-09-23", "inLanguage": "en", "author": {"@type": "Organization", "name": "Steledger", "url": "https://steledger.com/"}, "publisher": {"@type": "Organization", "name": "Steledger", "url": "https://steledger.com/"}, "isPartOf": {"@type": "Blog", "name": "Steledger Blog", "url": "https://steledger.com/blog/"}}</script>
+  <title>Prove what your agent knew, and when — Steledger</title>
+  <link rel="alternate" type="text/markdown" href="/blog/anchor-from-claude-code.md">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="wordmark" href="/">
+    <img class="mark" src="/assets/logo.svg" alt="" width="22" height="22">
+    <span>Steledger</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="/blog/">Blog</a>
+    <a href="https://api.steledger.com/docs/quickstart.md">Docs</a>
+    <a href="https://github.com/steledger/steledger-gateway">GitHub</a>
+  </nav>
+</header>
+<main id="content">
+<article class="post">
+<header class="post-header">
+  <p class="post-meta"><a href="/blog/">Blog</a> · <time datetime="2026-09-23">23 September 2026</time></p>
+  <h1>Prove what your agent knew, and when</h1>
+  <p class="lead">Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.</p>
+</header>
+<p>An agent's working notes, a decision record, a dataset it built a result on —
+  any of these can be fingerprinted and the fingerprint written to a public chain.
+  Later, anyone holding the same file can check that it existed, unchanged, no
+  later than a given block, and which GitHub account anchored it. The file itself
+  never leaves your disk.</p>
+<p>This walkthrough does it from Claude Code over MCP. You need Claude Code (any
+  plan), a GitHub account, and a file worth keeping a receipt for. The write takes
+  a minute; the chain confirms it within the next block, usually under ten
+  minutes. Every step was run for this post, and the record it produced is at the
+  end of step 6 for you to check.</p>
+
+<h2>1. Connect</h2>
+<p>Add the server once, from a terminal:</p>
+<pre><code>claude mcp add --transport http steledger https://api.steledger.com/mcp</code></pre>
+<p>Start Claude Code, run <code>/mcp</code>, pick <code>steledger</code> and
+  authenticate. A browser opens GitHub's consent screen. Steledger requests no
+  OAuth scopes, so it sees your public profile and nothing else; the details are
+  on the <a href="/privacy.html">privacy page</a>.</p>
+<p>Confirm it worked by asking Claude:</p>
+<pre><code>Call steledger whoami.</code></pre>
+<p>A signed-in session answers with <code>authenticated: true</code>, your
+  <code>github_login</code> and your numeric <code>github_id</code>. Keep the id:
+  every name you write is built from it. The read tools — <code>whoami</code>,
+  <code>node_status</code>, <code>read_record</code> — work before you sign in,
+  so a <code>false</code> here means only that the write tools will ask you to
+  authenticate first.</p>
+
+<h2>2. Decide what goes public</h2>
+<p>What reaches the chain is the fingerprint and whatever metadata you attach.
+  Both are public and permanent: there is no delete, and every version stays in
+  the chain's history. Treat the metadata as something you are publishing.</p>
+<p>The fingerprint hides the file, with one exception. If the content is short or
+  guessable — a one-word verdict, a date, a small number — anyone can hash their
+  guesses and compare. Anchor documents, not answers; or add a random line to the
+  file before hashing it.</p>
+
+<h2>3. Fingerprint the file</h2>
+<pre><code>sha256sum decision-2026-09.md</code></pre>
+<p>The output is 64 hex characters followed by the file name. Compute it yourself,
+  or have Claude run the command and show you the result. The service stores the
+  hash exactly as given and never checks it against anything — it cannot, since
+  it never sees the file — so a wrong or truncated digest anchors happily and
+  proves nothing.</p>
+
+<h2>4. Anchor it</h2>
+<p>Ask Claude, with your digest in place of the placeholder:</p>
+<pre><code>Store this memory on steledger: content hash &lt;sha256-hex&gt;,
+metadata {"note": "decision record, September 2026"}.</code></pre>
+<p>Claude calls <code>store_memory</code>, and the first time it will ask your
+  permission to use the tool. The result is two things worth keeping:</p>
+<ul>
+  <li>the record name, <code>ai:gh:&lt;github_id&gt;:mem:&lt;sha256-hex&gt;</code>;</li>
+  <li>the id of the transaction that wrote it.</li>
+</ul>
+<p>The gateway pays the fee; you hold no currency. On the free tier you can write
+  ten records a minute. Register your identity first if you have not: the write
+  succeeds without it, but a memory under an unregistered id anchors to nobody in
+  particular. The <a href="https://api.steledger.com/docs/mcp.md">MCP guide</a> covers
+  <code>register_identity</code>.</p>
+
+<h2>5. Read it back</h2>
+<pre><code>Read the steledger record ai:gh:&lt;github_id&gt;:mem:&lt;sha256-hex&gt;.</code></pre>
+<p>Right after the write it reads back as <code>pending</code>: the transaction
+  is waiting in the mempool. Once the next block lands it becomes
+  <code>confirmed</code>. This is the record written for this post, read back
+  once its block landed, trimmed to the fields that matter:</p>
+<pre><code>{
+  "name": "ai:gh:3772563:mem:9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10",
+  "value": "{\"github_id\":3772563,\"content_hash\":\"9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10\",
+            \"metadata\":{\"note\":\"decision record, September 2026\",
+            \"file\":\"https://steledger.com/blog/files/decision-2026-09.txt\"}}",
+  "txid": "1f24ba64f0dc807b53225fc8f26b7dd34e71f5ef0a69535a161acf7eb65e8ea5",
+  "time": 1790146449,
+  "expires_in": 319374,
+  "status": "confirmed"
+}</code></pre>
+<p><code>value</code> is a JSON string, as stored on-chain. <code>time</code> is
+  the transaction's own timestamp in Unix seconds (here 23 September 2026, 06:54
+  UTC) — it reads the same while pending — and
+  <code>expires_in</code> is how many blocks remain on the name — the figure above
+  was taken right after confirmation.</p>
+<p>The same read works with no MCP client and no account at all:</p>
+<pre><code>curl https://api.steledger.com/nvs/ai:gh:&lt;github_id&gt;:mem:&lt;sha256-hex&gt;</code></pre>
+
+<h2>6. Check it without trusting anyone</h2>
+<p>Suppose someone receives the file a year from now and wants to know whether it
+  is the one you anchored. They do not need you, and they do not need this
+  service:</p>
+<ol>
+  <li>Hash the file they were given with <code>sha256sum</code>.</li>
+  <li>Build the name <code>ai:gh:&lt;github_id&gt;:mem:&lt;their hash&gt;</code>. If
+    a single byte changed, the hash changes and no such record exists.</li>
+  <li>Open the transaction in <a href="https://explorer.emercoin.com">a public block explorer</a>
+    — its id is in the record, or you can pass it along with the file — and read
+    the name, the value and the block's time straight from the chain.</li>
+</ol>
+
+<h3>Try it on the record written for this post</h3>
+<p>It fingerprints <a href="https://steledger.com/blog/files/decision-2026-09.txt">a short decision record</a>,
+  published here unchanged so that you can hash it yourself:</p>
+<pre><code>curl -s https://steledger.com/blog/files/decision-2026-09.txt | sha256sum
+9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10  -
+
+curl https://api.steledger.com/nvs/ai:gh:3772563:mem:9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10</code></pre>
+<p>The digest is the end of the record name, and the record's value repeats it.
+  The transaction that wrote it is <a href="https://explorer.emercoin.com/tx/1f24ba64f0dc807b53225fc8f26b7dd34e71f5ef0a69535a161acf7eb65e8ea5">in the
+  explorer</a>. Change one character of the file and the first command gives a
+  hash for which no record exists.</p>
+
+<h3>What this proves, and what it does not</h3>
+<ul>
+  <li>It proves that a file with exactly this content existed no later than the
+    block that recorded its hash.</li>
+  <li>It proves the record was written by a session signed in as that GitHub
+    account. The gateway puts the <code>github_id</code> in the value after
+    checking the sign-in; the record is not signed by your own key.</li>
+  <li>It does not prove the file is true, or that the account's owner wrote it
+    rather than merely anchored it.</li>
+</ul>
+
+<h2>How long it lasts</h2>
+<p>The transaction stays in the chain's history for good. The <em>name</em> is
+  held for a term — about five years by default — and <code>expires_in</code>
+  counts it down in blocks. Writing the same record again extends the term. Let it
+  lapse and the history is still there, but the name can be claimed by someone
+  else, so an expired name is no longer evidence of anything.</p>
+
+<h2>Where next</h2>
+<ul>
+  <li>Scripting instead of chatting: the <a href="https://api.steledger.com/docs/quickstart.md">HTTP
+    quickstart</a> does the same with <code>curl</code>.</li>
+  <li>Many files at once: the local stdio server in the
+    <a href="https://github.com/steledger/steledger-gateway">gateway repository</a> adds
+    <code>store_memory_batch</code>, which writes them in one transaction.</li>
+  <li>Names, terms and limits: the <a href="https://api.steledger.com/docs/nvs.md">NVS data
+    model</a>.</li>
+</ul>
+</article>
+</main>
+<footer class="site-footer">
+  <nav aria-label="This site">
+    <ul class="footer-links">
+      <li><a href="/blog/anchor-from-claude-code.md">This page as Markdown</a></li>
+      <li><a href="/privacy.html">Privacy and security</a></li>
+      <li><a href="/feed.xml">Blog feed (Atom)</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+    </ul>
+  </nav>
+  <p class="fineprint">
+    Questions and issues: <a href="mailto:hello@steledger.com">hello@steledger.com</a>.
+    Security reports: <a href="mailto:security@steledger.com">security@steledger.com</a>.
+  </p>
+</footer>
+</body></html>
