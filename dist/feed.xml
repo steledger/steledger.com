@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://steledger.com/" xml:lang="en">
+  <title>Steledger Blog</title>
+  <subtitle>Notes on durable identity and memory for AI agents: how to use Steledger, and why it is built the way it is.</subtitle>
+  <link rel="self" type="application/atom+xml" href="https://steledger.com/feed.xml"/>
+  <link rel="alternate" type="text/html" href="https://steledger.com/blog/"/>
+  <id>https://steledger.com/blog/</id>
+  <updated>2026-09-23T00:00:00Z</updated>
+  <author><name>Steledger</name><uri>https://steledger.com/</uri></author>
+  <icon>https://steledger.com/assets/favicon.svg</icon>
+  <entry>
+    <title>Prove what your agent knew, and when</title>
+    <link rel="alternate" type="text/html" href="https://steledger.com/blog/anchor-from-claude-code.html"/>
+    <link rel="alternate" type="text/markdown" href="https://steledger.com/blog/anchor-from-claude-code.md"/>
+    <id>https://steledger.com/blog/anchor-from-claude-code.html</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <summary>Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.</summary>
+    <content type="html">&lt;p&gt;An agent's working notes, a decision record, a dataset it built a result on —
+  any of these can be fingerprinted and the fingerprint written to a public chain.
+  Later, anyone holding the same file can check that it existed, unchanged, no
+  later than a given block, and which GitHub account anchored it. The file itself
+  never leaves your disk.&lt;/p&gt;
+&lt;p&gt;This walkthrough does it from Claude Code over MCP. You need Claude Code (any
+  plan), a GitHub account, and a file worth keeping a receipt for. The write takes
+  a minute; the chain confirms it within the next block, usually under ten
+  minutes. Every step was run for this post, and the record it produced is at the
+  end of step 6 for you to check.&lt;/p&gt;
+
+&lt;h2&gt;1. Connect&lt;/h2&gt;
+&lt;p&gt;Add the server once, from a terminal:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;claude mcp add --transport http steledger https://api.steledger.com/mcp&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Start Claude Code, run &lt;code&gt;/mcp&lt;/code&gt;, pick &lt;code&gt;steledger&lt;/code&gt; and
+  authenticate. A browser opens GitHub's consent screen. Steledger requests no
+  OAuth scopes, so it sees your public profile and nothing else; the details are
+  on the &lt;a href="/privacy.html"&gt;privacy page&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Confirm it worked by asking Claude:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Call steledger whoami.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A signed-in session answers with &lt;code&gt;authenticated: true&lt;/code&gt;, your
+  &lt;code&gt;github_login&lt;/code&gt; and your numeric &lt;code&gt;github_id&lt;/code&gt;. Keep the id:
+  every name you write is built from it. The read tools — &lt;code&gt;whoami&lt;/code&gt;,
+  &lt;code&gt;node_status&lt;/code&gt;, &lt;code&gt;read_record&lt;/code&gt; — work before you sign in,
+  so a &lt;code&gt;false&lt;/code&gt; here means only that the write tools will ask you to
+  authenticate first.&lt;/p&gt;
+
+&lt;h2&gt;2. Decide what goes public&lt;/h2&gt;
+&lt;p&gt;What reaches the chain is the fingerprint and whatever metadata you attach.
+  Both are public and permanent: there is no delete, and every version stays in
+  the chain's history. Treat the metadata as something you are publishing.&lt;/p&gt;
+&lt;p&gt;The fingerprint hides the file, with one exception. If the content is short or
+  guessable — a one-word verdict, a date, a small number — anyone can hash their
+  guesses and compare. Anchor documents, not answers; or add a random line to the
+  file before hashing it.&lt;/p&gt;
+
+&lt;h2&gt;3. Fingerprint the file&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;sha256sum decision-2026-09.md&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The output is 64 hex characters followed by the file name. Compute it yourself,
+  or have Claude run the command and show you the result. The service stores the
+  hash exactly as given and never checks it against anything — it cannot, since
+  it never sees the file — so a wrong or truncated digest anchors happily and
+  proves nothing.&lt;/p&gt;
+
+&lt;h2&gt;4. Anchor it&lt;/h2&gt;
+&lt;p&gt;Ask Claude, with your digest in place of the placeholder:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Store this memory on steledger: content hash &amp;lt;sha256-hex&amp;gt;,
+metadata {"note": "decision record, September 2026"}.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Claude calls &lt;code&gt;store_memory&lt;/code&gt;, and the first time it will ask your
+  permission to use the tool. The result is two things worth keeping:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;the record name, &lt;code&gt;ai:gh:&amp;lt;github_id&amp;gt;:mem:&amp;lt;sha256-hex&amp;gt;&lt;/code&gt;;&lt;/li&gt;
+  &lt;li&gt;the id of the transaction that wrote it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The gateway pays the fee; you hold no currency. On the free tier you can write
+  ten records a minute. Register your identity first if you have not: the write
+  succeeds without it, but a memory under an unregistered id anchors to nobody in
+  particular. The &lt;a href="https://api.steledger.com/docs/mcp.md"&gt;MCP guide&lt;/a&gt; covers
+  &lt;code&gt;register_identity&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;5. Read it back&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;Read the steledger record ai:gh:&amp;lt;github_id&amp;gt;:mem:&amp;lt;sha256-hex&amp;gt;.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Right after the write it reads back as &lt;code&gt;pending&lt;/code&gt;: the transaction
+  is waiting in the mempool. Once the next block lands it becomes
+  &lt;code&gt;confirmed&lt;/code&gt;. This is the record written for this post, read back
+  once its block landed, trimmed to the fields that matter:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{
+  "name": "ai:gh:3772563:mem:9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10",
+  "value": "{\"github_id\":3772563,\"content_hash\":\"9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10\",
+            \"metadata\":{\"note\":\"decision record, September 2026\",
+            \"file\":\"https://steledger.com/blog/files/decision-2026-09.txt\"}}",
+  "txid": "1f24ba64f0dc807b53225fc8f26b7dd34e71f5ef0a69535a161acf7eb65e8ea5",
+  "time": 1790146449,
+  "expires_in": 319374,
+  "status": "confirmed"
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;value&lt;/code&gt; is a JSON string, as stored on-chain. &lt;code&gt;time&lt;/code&gt; is
+  the transaction's own timestamp in Unix seconds (here 23 September 2026, 06:54
+  UTC) — it reads the same while pending — and
+  &lt;code&gt;expires_in&lt;/code&gt; is how many blocks remain on the name — the figure above
+  was taken right after confirmation.&lt;/p&gt;
+&lt;p&gt;The same read works with no MCP client and no account at all:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;curl https://api.steledger.com/nvs/ai:gh:&amp;lt;github_id&amp;gt;:mem:&amp;lt;sha256-hex&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;6. Check it without trusting anyone&lt;/h2&gt;
+&lt;p&gt;Suppose someone receives the file a year from now and wants to know whether it
+  is the one you anchored. They do not need you, and they do not need this
+  service:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Hash the file they were given with &lt;code&gt;sha256sum&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Build the name &lt;code&gt;ai:gh:&amp;lt;github_id&amp;gt;:mem:&amp;lt;their hash&amp;gt;&lt;/code&gt;. If
+    a single byte changed, the hash changes and no such record exists.&lt;/li&gt;
+  &lt;li&gt;Open the transaction in &lt;a href="https://explorer.emercoin.com"&gt;a public block explorer&lt;/a&gt;
+    — its id is in the record, or you can pass it along with the file — and read
+    the name, the value and the block's time straight from the chain.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Try it on the record written for this post&lt;/h3&gt;
+&lt;p&gt;It fingerprints &lt;a href="https://steledger.com/blog/files/decision-2026-09.txt"&gt;a short decision record&lt;/a&gt;,
+  published here unchanged so that you can hash it yourself:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;curl -s https://steledger.com/blog/files/decision-2026-09.txt | sha256sum
+9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10  -
+
+curl https://api.steledger.com/nvs/ai:gh:3772563:mem:9f9209756f6ace1b3f35a54869d5362776913aa8b434b66c514df216f3de3f10&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The digest is the end of the record name, and the record's value repeats it.
+  The transaction that wrote it is &lt;a href="https://explorer.emercoin.com/tx/1f24ba64f0dc807b53225fc8f26b7dd34e71f5ef0a69535a161acf7eb65e8ea5"&gt;in the
+  explorer&lt;/a&gt;. Change one character of the file and the first command gives a
+  hash for which no record exists.&lt;/p&gt;
+
+&lt;h3&gt;What this proves, and what it does not&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;It proves that a file with exactly this content existed no later than the
+    block that recorded its hash.&lt;/li&gt;
+  &lt;li&gt;It proves the record was written by a session signed in as that GitHub
+    account. The gateway puts the &lt;code&gt;github_id&lt;/code&gt; in the value after
+    checking the sign-in; the record is not signed by your own key.&lt;/li&gt;
+  &lt;li&gt;It does not prove the file is true, or that the account's owner wrote it
+    rather than merely anchored it.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;How long it lasts&lt;/h2&gt;
+&lt;p&gt;The transaction stays in the chain's history for good. The &lt;em&gt;name&lt;/em&gt; is
+  held for a term — about five years by default — and &lt;code&gt;expires_in&lt;/code&gt;
+  counts it down in blocks. Writing the same record again extends the term. Let it
+  lapse and the history is still there, but the name can be claimed by someone
+  else, so an expired name is no longer evidence of anything.&lt;/p&gt;
+
+&lt;h2&gt;Where next&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Scripting instead of chatting: the &lt;a href="https://api.steledger.com/docs/quickstart.md"&gt;HTTP
+    quickstart&lt;/a&gt; does the same with &lt;code&gt;curl&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Many files at once: the local stdio server in the
+    &lt;a href="https://github.com/steledger/steledger-gateway"&gt;gateway repository&lt;/a&gt; adds
+    &lt;code&gt;store_memory_batch&lt;/code&gt;, which writes them in one transaction.&lt;/li&gt;
+  &lt;li&gt;Names, terms and limits: the &lt;a href="https://api.steledger.com/docs/nvs.md"&gt;NVS data
+    model&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;</content>
+  </entry>
+</feed>

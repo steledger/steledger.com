@@ -259,6 +259,87 @@ pre code {
   border-top: 1px solid var(--line);
 }
 
+/* blog */
+
+.post-list {
+  list-style: none;
+  margin: 3rem 0 0;
+  padding: 0;
+}
+
+.post-list li {
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.post-list h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.4em;
+}
+
+.post-list h2 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.post-list h2 a:hover {
+  color: var(--patina);
+}
+
+.post-list p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+  margin: 0 0 0.75em;
+}
+
+.post-list .post-meta {
+  margin-bottom: 0.4em;
+}
+
+.post-header h1 {
+  font-size: 2.25rem;
+  letter-spacing: -0.01em;
+}
+
+.post-header .lead {
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+}
+
+.post h2 {
+  font-size: 1.4rem;
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.post h3 {
+  font-size: 1.05rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  margin-top: 1.75rem;
+  margin-bottom: 0.35em;
+}
+
+.post ul,
+.post ol {
+  padding-left: 1.25rem;
+  margin: 0 0 1em;
+}
+
+.post li + li {
+  margin-top: 0.35em;
+}
+
+.post :not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
 /* footer */
 
 .site-footer {
@@ -285,7 +366,8 @@ pre code {
 }
 
 @media (max-width: 600px) {
-  .hero h1 {
+  .hero h1,
+  .post-header h1 {
     font-size: 2rem;
   }
 
