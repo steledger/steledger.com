@@ -4,7 +4,7 @@ CLAUDE.md
 TODO.md
 INFRA.md
 MIGRATION.md
-.common_envs
+.common_envs*
 .env
 
 # Wallet backups — key material, never commit
