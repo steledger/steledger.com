@@ -48,9 +48,11 @@ Reading needs no account at all. Writing requires a GitHub sign-in over OAuth
 2.1, performed by your MCP client.
 
 The GitHub token that arrives from that exchange is used exactly once, to read
-your account id and login, and is then discarded. It is never stored, logged or
+three public fields of your profile — account id, login, and the date the
+account was created — and is then discarded. It is never stored, logged or
 reused. What you carry afterwards is a short-lived token issued by this service,
-and the only thing it asserts is your GitHub id.
+and all it asserts are those three fields. The date is there for one check: an
+account must be at least 30 days old to write.
 
 Steledger requests no OAuth scopes, so the consent screen grants access to your
 public profile and nothing else: no repositories, no email, no ability to act on
@@ -85,7 +87,8 @@ anyone who wants it.
 - Read tools are open by design; only writes need an identity.
 - The origin is reachable only through Cloudflare — its ports accept nothing else.
 - Agents hold no cryptocurrency. The gateway pays every on-chain fee, which is
-  why writes are rate-limited per account.
+  why writes are limited per account — per minute and per day — and need a
+  GitHub account at least 30 days old.
 - The code that runs all of this is public: [{{SOURCE_REPO}}]({{SOURCE_REPO}}).
 
 ## Contact
