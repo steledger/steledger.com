@@ -161,6 +161,16 @@ main {
   max-width: 34em;
 }
 
+.hero .tagline {
+  margin-top: 1.5rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--patina);
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink-soft);
+  max-width: 34em;
+}
+
 .section {
   margin-top: 3rem;
   padding-top: 2rem;
