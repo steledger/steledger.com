@@ -22,6 +22,6 @@
 
 ## Blog
 
-- [Blog index](https://steledger.com/blog/index.md): Notes on durable identity and memory for AI agents: how to use Steledger, and why it is built the way it is.
+- [Blog index](https://steledger.com/blog/index.md): Notes on identity, memory and trust between people and AI agents — how to use Steledger, why it is built this way, and what we think should come next.
 - [Atom feed](https://steledger.com/feed.xml): every post, full text
-- [Prove what your agent knew, and when](https://steledger.com/blog/anchor-from-claude-code.md): Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.
+- [Prove what your agent knew, and when](https://steledger.com/blog/anchor-from-claude-code.md): Guide. Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.
