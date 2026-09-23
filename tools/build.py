@@ -2,6 +2,7 @@
 """Assemble dist/ from src/ + partials/ + assets/. Stdlib only, no template engine."""
 import json
 import shutil
+import sys
 from datetime import date
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -11,6 +12,7 @@ SRC = ROOT / "src"
 PARTIALS = ROOT / "partials"
 ASSETS = ROOT / "assets"
 DIST = ROOT / "dist"
+DRAFTS = ROOT / "drafts"
 
 SITE_URL = "https://steledger.com"
 # The canonical service host since the gateway migration of 2026-09-22.
@@ -66,9 +68,31 @@ TOKENS = {
 # cannot disagree. Set "updated" when a post changes in substance.
 BLOG_TITLE = "Blog"
 BLOG_DESCRIPTION = (
-    "Notes on durable identity and memory for AI agents: how to use Steledger, "
-    "and why it is built the way it is."
+    "Notes on identity, memory and trust between people and AI agents — how to "
+    "use Steledger, why it is built this way, and what we think should come next."
 )
+
+# Every post is one kind (its section) and any number of tags. Both vocabularies
+# are closed: a post naming anything not listed here fails the build, so a typo
+# cannot quietly mint a new topic page. Add a tag here when a post needs it.
+KINDS = {"guide": "Guide", "essay": "Essay"}
+TAGS = {
+    "identity": ("Identity", "Who an agent is, and what lets others recognise it again."),
+    "memory": ("Memory", "What an agent keeps, and how it can show later what it kept."),
+    "trust": ("Trust", "Why anyone should rely on an agent, and what that reliance rests on."),
+    "provenance": ("Provenance", "Showing later that something existed, unchanged, and who anchored it."),
+    "platforms": ("Platforms", "Vendors, lock-in, and what outlives them."),
+    "claude-code": ("Claude Code", "Using Steledger from Claude Code."),
+    "mcp": ("MCP", "The Model Context Protocol, and connecting to Steledger through it."),
+}
+
+# Posts, newest first. Drafts live in drafts/ (gitignored: this repo is public,
+# and a draft's title is already a publication): drafts/posts.json holds their
+# entries, drafts/<slug>.html and .md their bodies. `build.py --drafts` renders
+# them with everything else into preview/, which nothing deploys. Publishing a
+# draft = move its files to src/blog/ and its entry here.
+# "written_with" names the AI model a post was written with — said on the post
+# itself, because a blog about trust between people and agents should not hide it.
 POSTS = [
     {
         "slug": "anchor-from-claude-code",
@@ -79,6 +103,9 @@ POSTS = [
             "this service."
         ),
         "published": "2026-09-23",
+        "kind": "guide",
+        "tags": ["claude-code", "mcp", "provenance", "memory"],
+        "written_with": "Claude",
     },
 ]
 
@@ -166,6 +193,7 @@ def render_page(body: str, meta: dict) -> str:
     lines.append(f'  <title>{meta["title"]} — Steledger</title>')
     if meta.get("md_path"):
         lines.append(f'  <link rel="alternate" type="text/markdown" href="{meta["md_path"]}">')
+    lines += [f"  {line}" for line in meta.get("head_extra", [])]
     lines += [
         "</head>",
         "<body>",
@@ -188,6 +216,33 @@ def post_url(post: dict) -> str:
     return f"/blog/{post['slug']}.html"
 
 
+def tag_url(tag: str) -> str:
+    return f"/blog/tags/{tag}.html"
+
+
+def check_posts(posts: list) -> None:
+    for p in posts:
+        if p["kind"] not in KINDS:
+            sys.exit(f"{p['slug']}: unknown kind {p['kind']!r}; add it to KINDS")
+        for t in p["tags"]:
+            if t not in TAGS:
+                sys.exit(f"{p['slug']}: unknown tag {t!r}; add it to TAGS")
+
+
+def used_tags() -> list:
+    """Tags carried by at least one built post, in TAGS order."""
+    used = {t for p in POSTS for t in p["tags"]}
+    return [t for t in TAGS if t in used]
+
+
+def tag_links(tags: list) -> str:
+    return ", ".join(f'<a href="{tag_url(t)}">{TAGS[t][0]}</a>' for t in tags)
+
+
+def tag_links_md(tags: list) -> str:
+    return ", ".join(f"[{TAGS[t][0]}]({tag_url(t)})" for t in tags)
+
+
 BLOG_REF = {"@type": "Blog", "name": f"Steledger {BLOG_TITLE}", "url": SITE_URL + "/blog/"}
 # The project, not a company: there is no legal entity behind the site.
 PUBLISHER = {"@type": "Organization", "name": "Steledger", "url": SITE_URL + "/"}
@@ -201,6 +256,11 @@ def post_meta(post: dict) -> dict:
         "title": post["title"],
         "description": post["description"],
         "og_type": "article",
+        "head_extra": [
+            f'<meta property="article:published_time" content="{post["published"]}">',
+            f'<meta property="article:section" content="{KINDS[post["kind"]]}">',
+            *(f'<meta property="article:tag" content="{TAGS[t][0]}">' for t in post["tags"]),
+        ],
         "jsonld": {
             "@context": "https://schema.org",
             "@type": "BlogPosting",
@@ -211,6 +271,8 @@ def post_meta(post: dict) -> dict:
             "datePublished": post["published"],
             "dateModified": post.get("updated", post["published"]),
             "inLanguage": "en",
+            "articleSection": KINDS[post["kind"]],
+            "keywords": [TAGS[t][0] for t in post["tags"]],
             "author": PUBLISHER,
             "publisher": PUBLISHER,
             "isPartOf": BLOG_REF,
@@ -219,14 +281,24 @@ def post_meta(post: dict) -> dict:
 
 
 def post_dateline(post: dict) -> str:
-    line = f'<time datetime="{post["published"]}">{human_date(post["published"])}</time>'
+    line = f'{KINDS[post["kind"]]} · <time datetime="{post["published"]}">{human_date(post["published"])}</time>'
     if post.get("updated"):
         line += f' · updated <time datetime="{post["updated"]}">{human_date(post["updated"])}</time>'
     return line
 
 
+def authorship(post: dict) -> str:
+    if post.get("written_with"):
+        return f"Written with {post['written_with']}, an AI model, and published by Steledger."
+    return "Published by Steledger."
+
+
+def post_source(post: dict, ext: str) -> Path:
+    return (DRAFTS if post.get("draft") else SRC / "blog") / f"{post['slug']}.{ext}"
+
+
 def render_post_body(post: dict) -> str:
-    article = (SRC / "blog" / f"{post['slug']}.html").read_text().strip()
+    article = post_source(post, "html").read_text().strip()
     return (
         '<article class="post">\n'
         '<header class="post-header">\n'
@@ -235,18 +307,23 @@ def render_post_body(post: dict) -> str:
         f'  <p class="lead">{escape(post["description"])}</p>\n'
         "</header>\n"
         f"{article}\n"
+        '<footer class="post-footer">\n'
+        f"  <p>Topics: {tag_links(post['tags'])}.</p>\n"
+        f"  <p>{authorship(post)}</p>\n"
+        "</footer>\n"
         "</article>"
     )
 
 
 def render_post_md(post: dict) -> str:
-    dateline = f"Published {post['published']}"
+    dateline = f"{KINDS[post['kind']]}, published {post['published']}"
     if post.get("updated"):
         dateline += f", updated {post['updated']}"
-    body = (SRC / "blog" / f"{post['slug']}.md").read_text().strip()
+    body = post_source(post, "md").read_text().strip()
     return fill(
         f"# {post['title']}\n\n{post['description']}\n\n"
-        f"{dateline}. Part of the [Steledger blog](/blog/).\n\n{body}\n",
+        f"{dateline}. Part of the [Steledger blog](/blog/).\n\n{body}\n\n---\n\n"
+        f"Topics: {tag_links_md(post['tags'])}.\n\n{authorship(post)}\n",
         TOKENS,
     )
 
@@ -275,33 +352,93 @@ def blog_index_meta() -> dict:
     }
 
 
-def render_blog_index() -> str:
+def render_post_list(posts: list) -> str:
     items = "\n".join(
         "  <li>\n"
-        f'    <p class="post-meta"><time datetime="{p["published"]}">{human_date(p["published"])}</time></p>\n'
+        f'    <p class="post-meta">{KINDS[p["kind"]]} · <time datetime="{p["published"]}">{human_date(p["published"])}</time></p>\n'
         f'    <h2><a href="{post_url(p)}">{escape(p["title"])}</a></h2>\n'
         f'    <p>{escape(p["description"])}</p>\n'
         "  </li>"
-        for p in POSTS
+        for p in posts
     )
+    return f'<ol class="post-list">\n{items}\n</ol>'
+
+
+def render_post_list_md(posts: list) -> str:
+    return "\n\n".join(
+        f"## [{p['title']}]({post_url(p)})\n\n"
+        f"{KINDS[p['kind']]}, {p['published']} — {p['description']}"
+        for p in posts
+    )
+
+
+def render_blog_index() -> str:
     return (
         '<section class="hero">\n'
         f"  <h1>{BLOG_TITLE}</h1>\n"
         f'  <p class="lead">{escape(BLOG_DESCRIPTION)}</p>\n'
-        '  <p class="caption">Subscribe: <a href="/feed.xml">Atom feed</a>.</p>\n'
+        f'  <p class="caption">Topics: {tag_links(used_tags())}. '
+        'Subscribe: <a href="/feed.xml">Atom feed</a>.</p>\n'
         "</section>\n\n"
-        f'<ol class="post-list">\n{items}\n</ol>'
+        + render_post_list(POSTS)
     )
 
 
 def render_blog_index_md() -> str:
-    items = "\n\n".join(
-        f"## [{p['title']}]({post_url(p)})\n\n{p['published']} — {p['description']}"
-        for p in POSTS
-    )
     return (
         f"# {BLOG_TITLE}\n\n{BLOG_DESCRIPTION}\n\n"
-        f"Subscribe: [Atom feed](/feed.xml).\n\n{items}\n"
+        f"Topics: {tag_links_md(used_tags())}.\n\n"
+        f"Subscribe: [Atom feed](/feed.xml).\n\n{render_post_list_md(POSTS)}\n"
+    )
+
+
+def tagged(tag: str) -> list:
+    return [p for p in POSTS if tag in p["tags"]]
+
+
+def tag_meta(tag: str) -> dict:
+    label, blurb = TAGS[tag]
+    url = SITE_URL + tag_url(tag)
+    return {
+        "html_path": tag_url(tag),
+        "md_path": f"/blog/tags/{tag}.md",
+        "title": f"{label} — {BLOG_TITLE}",
+        "description": blurb,
+        "jsonld": {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": f"{label} — Steledger {BLOG_TITLE}",
+            "url": url,
+            "description": blurb,
+            "about": label,
+            "isPartOf": BLOG_REF,
+            "hasPart": [
+                {"@type": "BlogPosting", "headline": p["title"], "url": SITE_URL + post_url(p)}
+                for p in tagged(tag)
+            ],
+        },
+    }
+
+
+def render_tag_page(tag: str) -> str:
+    label, blurb = TAGS[tag]
+    others = [t for t in used_tags() if t != tag]
+    return (
+        '<section class="hero">\n'
+        f'  <p class="post-meta"><a href="/blog/">{BLOG_TITLE}</a> · Topic</p>\n'
+        f"  <h1>{label}</h1>\n"
+        f'  <p class="lead">{escape(blurb)}</p>\n'
+        + (f'  <p class="caption">Other topics: {tag_links(others)}.</p>\n' if others else "")
+        + "</section>\n\n"
+        + render_post_list(tagged(tag))
+    )
+
+
+def render_tag_page_md(tag: str) -> str:
+    label, blurb = TAGS[tag]
+    return (
+        f"# {label}\n\nA topic on the [Steledger blog](/blog/). {blurb}\n\n"
+        f"{render_post_list_md(tagged(tag))}\n"
     )
 
 
@@ -318,7 +455,7 @@ def build_feed() -> str:
     entries = []
     for p in POSTS:
         url = SITE_URL + post_url(p)
-        content = fill((SRC / "blog" / f"{p['slug']}.html").read_text().strip(), TOKENS)
+        content = fill(post_source(p, "html").read_text().strip(), TOKENS)
         entries.append(
             "  <entry>\n"
             f"    <title>{escape(p['title'])}</title>\n"
@@ -328,6 +465,12 @@ def build_feed() -> str:
             f"    <published>{stamp(p['published'])}</published>\n"
             f"    <updated>{stamp(updated(p))}</updated>\n"
             f"    <summary>{escape(p['description'])}</summary>\n"
+            f'    <category term="{p["kind"]}" label="{KINDS[p["kind"]]}"/>\n'
+            + "".join(
+                f'    <category term="{t}" label="{TAGS[t][0]}" scheme="{SITE_URL}/blog/tags/"/>\n'
+                for t in p["tags"]
+            )
+            + 
             f'    <content type="html">{escape(content)}</content>\n'
             "  </entry>"
         )
@@ -358,7 +501,7 @@ def build_robots() -> str:
 def build_llms() -> str:
     # Posts are listed by their Markdown twin: that is the copy an agent wants.
     posts = "\n".join(
-        f"- [{p['title']}]({SITE_URL}/blog/{p['slug']}.md): {p['description']}"
+        f"- [{p['title']}]({SITE_URL}/blog/{p['slug']}.md): {KINDS[p['kind']]}. {p['description']}"
         for p in POSTS
     )
     return f"""# Steledger
@@ -396,6 +539,8 @@ def build_sitemap() -> str:
     for meta in PAGES.values():
         urls += [(SITE_URL + meta["html_path"], None), (SITE_URL + meta["md_path"], None)]
     urls += [(SITE_URL + "/blog/", None), (SITE_URL + "/blog/index.md", None)]
+    for t in used_tags():
+        urls += [(SITE_URL + tag_url(t), None), (f"{SITE_URL}/blog/tags/{t}.md", None)]
     for p in POSTS:
         lastmod = p.get("updated", p["published"])
         urls += [
@@ -415,6 +560,16 @@ def build_sitemap() -> str:
 
 
 def main():
+    global DIST, POSTS
+    if "--drafts" in sys.argv[1:]:
+        # Everything, drafts included, into a gitignored directory that nothing
+        # deploys. dist/ is committed and served, so a draft must never land there.
+        DIST = ROOT / "preview"
+        drafts_index = DRAFTS / "posts.json"
+        if drafts_index.exists():
+            drafts = [{**d, "draft": True} for d in json.loads(drafts_index.read_text())]
+            POSTS = sorted(drafts + POSTS, key=lambda p: p["published"], reverse=True)
+    check_posts(POSTS)
     if DIST.exists():
         shutil.rmtree(DIST)
     DIST.mkdir(parents=True)
@@ -448,6 +603,11 @@ def main():
     for p in POSTS:
         (blog / f"{p['slug']}.html").write_text(render_page(render_post_body(p), post_meta(p)))
         (blog / f"{p['slug']}.md").write_text(render_post_md(p))
+    tags_dir = blog / "tags"
+    tags_dir.mkdir()
+    for t in used_tags():
+        (tags_dir / f"{t}.html").write_text(render_page(render_tag_page(t), tag_meta(t)))
+        (tags_dir / f"{t}.md").write_text(render_tag_page_md(t))
     (DIST / "feed.xml").write_text(build_feed())
 
     shutil.copytree(ASSETS, DIST / "assets")
@@ -456,7 +616,10 @@ def main():
     (DIST / "llms.txt").write_text(build_llms())
     (DIST / "sitemap.xml").write_text(build_sitemap())
 
-    print(f"Built {len(PAGES)} page(s), blog with {len(POSTS)} post(s), 404 into {DIST}")
+    print(
+        f"Built {len(PAGES)} page(s), blog with {len(POSTS)} post(s) and "
+        f"{len(used_tags())} topic(s), 404 into {DIST}"
+    )
 
 
 if __name__ == "__main__":

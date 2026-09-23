@@ -13,6 +13,10 @@ backup/
 # Local Claude Code config — may hold hosts, paths and permission rules
 .claude/
 
+# Unpublished posts and their preview (tools/build.py --drafts) — never deployed
+drafts/
+preview/
+
 # OS / editor
 .DS_Store
 *.swp

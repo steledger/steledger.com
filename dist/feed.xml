@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://steledger.com/" xml:lang="en">
   <title>Steledger Blog</title>
-  <subtitle>Notes on durable identity and memory for AI agents: how to use Steledger, and why it is built the way it is.</subtitle>
+  <subtitle>Notes on identity, memory and trust between people and AI agents — how to use Steledger, why it is built this way, and what we think should come next.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://steledger.com/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://steledger.com/blog/"/>
   <id>https://steledger.com/blog/</id>
@@ -16,6 +16,11 @@
     <published>2026-09-23T00:00:00Z</published>
     <updated>2026-09-23T00:00:00Z</updated>
     <summary>Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.</summary>
+    <category term="guide" label="Guide"/>
+    <category term="claude-code" label="Claude Code" scheme="https://steledger.com/blog/tags/"/>
+    <category term="mcp" label="MCP" scheme="https://steledger.com/blog/tags/"/>
+    <category term="provenance" label="Provenance" scheme="https://steledger.com/blog/tags/"/>
+    <category term="memory" label="Memory" scheme="https://steledger.com/blog/tags/"/>
     <content type="html">&lt;p&gt;An agent's working notes, a decision record, a dataset it built a result on —
   any of these can be fingerprinted and the fingerprint written to a public chain.
   Later, anyone holding the same file can check that it existed, unchanged, no

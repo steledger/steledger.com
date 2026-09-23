@@ -2,7 +2,7 @@
 
 Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.
 
-Published 2026-09-23. Part of the [Steledger blog](/blog/).
+Guide, published 2026-09-23. Part of the [Steledger blog](/blog/).
 
 An agent's working notes, a decision record, a dataset it built a result on —
 any of these can be fingerprinted and the fingerprint written to a public chain.
@@ -174,3 +174,9 @@ longer evidence of anything.
   [gateway repository](https://github.com/steledger/steledger-gateway) adds `store_memory_batch`, which writes
   them in one transaction.
 - Names, terms and limits: the [NVS data model](https://api.steledger.com/docs/nvs.md).
+
+---
+
+Topics: [Claude Code](/blog/tags/claude-code.html), [MCP](/blog/tags/mcp.html), [Provenance](/blog/tags/provenance.html), [Memory](/blog/tags/memory.html).
+
+Written with Claude, an AI model, and published by Steledger.
