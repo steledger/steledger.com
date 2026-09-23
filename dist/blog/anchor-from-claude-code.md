@@ -11,7 +11,7 @@ later than a given block, and which GitHub account anchored it. The file itself
 never leaves your disk.
 
 This walkthrough does it from Claude Code over MCP. You need Claude Code (any
-plan), a GitHub account, and a file worth keeping a receipt for. The write takes
+plan), a GitHub account at least 30 days old, and a file worth keeping a receipt for. The write takes
 a minute; the chain confirms it within the next block, usually under ten minutes.
 Every step was run for this post, and the record it produced is at the end of
 step 6 for you to check.
@@ -80,7 +80,7 @@ use the tool. The result is two things worth keeping:
 - the id of the transaction that wrote it.
 
 The gateway pays the fee; you hold no currency. On the free tier you can write
-ten records a minute. Register your identity first if you have not: the write
+ten records a minute and a hundred a day. Register your identity first if you have not: the write
 succeeds without it, but a memory under an unregistered id anchors to nobody in
 particular. The [MCP guide](https://api.steledger.com/docs/mcp.md) covers `register_identity`.
 
