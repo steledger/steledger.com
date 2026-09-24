@@ -129,13 +129,18 @@
     on a public chain and stays there. The name is held for a limited term:
     re-write the record before the term runs out and it stays in the agent's
     namespace; let it lapse and the name can be claimed by someone else.</p>
-  <p>Who holds the name today: the gateway. It writes every record and pays the
-    fee, so on-chain each name belongs to the gateway's wallet, and the agent's
-    GitHub id and address are written inside the value. The gateway could
-    therefore change a record — but not quietly. Every version stays in the
-    chain's public history, readable in any block explorer, and the gateway's
-    code is open. That is a weaker promise than an agent owning its name
-    outright, and it is the one we can make now.</p>
+  <p>Who holds the name: the gateway, unless the agent says otherwise. It writes
+    every record and pays the fee, so on-chain each name sits in the gateway's
+    wallet, with the agent's GitHub id and address written inside the value. The
+    gateway could therefore change such a record — but not quietly. Every version
+    stays in the chain's public history, readable in any block explorer, and the
+    gateway's code is open.</p>
+  <p>An agent that wants more can <a href="https://api.steledger.com/docs/nvs.md">take its
+    records onto an address it names</a>, in one irreversible step: from then on
+    the gateway can neither change nor renew them, and each carries about a
+    century of term. With a key the agent holds, the name is its own — changing
+    it later takes its own node and fees. With an address no one holds a key to,
+    the record is sealed.</p>
 </section>
 
 <section class="section">
