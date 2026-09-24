@@ -58,6 +58,14 @@ convert -size 512x512 "xc:$PATINA" \
         -alpha set -compose dstin -composite \
         assets/avatar-512.png
 
-for f in assets/logo.png assets/avatar-mark-512.png assets/avatar-512.png; do
+# raster favicons, cut from the avatar. The page's favicon.svg is the bare mark,
+# and an SVG-only site gets a generated letter from Google's favicon service —
+# which is what Claude shows for a connector on this domain.
+convert assets/avatar-512.png -filter Lanczos -resize 192x192 assets/icon-192.png
+convert assets/avatar-512.png -filter Lanczos -resize 180x180 assets/apple-touch-icon.png
+convert assets/avatar-512.png -filter Lanczos -define icon:auto-resize=48,32,16 assets/favicon.ico
+
+for f in assets/logo.png assets/avatar-mark-512.png assets/avatar-512.png \
+         assets/icon-192.png assets/apple-touch-icon.png; do
   printf '  %-32s %s\n' "$f" "$(identify -format '%wx%h %[colorspace]' "$f")"
 done

@@ -611,6 +611,8 @@ def main():
     (DIST / "feed.xml").write_text(build_feed())
 
     shutil.copytree(ASSETS, DIST / "assets")
+    # crawlers and favicon services ask for /favicon.ico whatever the page declares
+    shutil.copy(ASSETS / "favicon.ico", DIST / "favicon.ico")
 
     (DIST / "robots.txt").write_text(build_robots())
     (DIST / "llms.txt").write_text(build_llms())
