@@ -45,7 +45,9 @@ no record contents, no per-user history.
 Calls that fail are counted the same way: where it happened (the tool or API
 route), the error code, the client software and the time — never who called or
 with what arguments. It is how we learn where agents get stuck, since an agent
-rarely writes to say so. Both sets of counters are public, at
+rarely writes to say so. Sign-ins are counted the same way, by step — sent to
+GitHub, cancelled, signed in — and never by account. All of these counters are
+public, at
 [https://api.steledger.com/stats](https://api.steledger.com/stats).
 
 ## Signing in
