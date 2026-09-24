@@ -42,6 +42,12 @@ and which client software called it. Signed-in callers are counted as a set of
 GitHub ids, so the count is a number, not a list of activity. No request bodies,
 no record contents, no per-user history.
 
+Calls that fail are counted the same way: where it happened (the tool or API
+route), the error code, the client software and the time — never who called or
+with what arguments. It is how we learn where agents get stuck, since an agent
+rarely writes to say so. Both sets of counters are public, at
+[{{API_BASE}}/stats]({{API_BASE}}/stats).
+
 ## Signing in
 
 Reading needs no account at all. Writing requires a GitHub sign-in over OAuth
