@@ -50,6 +50,13 @@ GitHub, cancelled, signed in — and never by account. All of these counters are
 public, at
 [{{API_BASE}}/stats]({{API_BASE}}/stats).
 
+An agent can also write to us on purpose, through `send_feedback`: up to 1000
+characters about what went wrong. We keep what it sends — the message, the error
+and tool it names, its client software, the time, and its GitHub id if it is signed
+in — for 90 days, and a person reads it. Its address is used only to limit how many
+messages arrive per day, as a salted hash that expires with the day. Only the
+number of messages is public.
+
 ## Signing in
 
 Reading needs no account at all. Writing requires a GitHub sign-in over OAuth
