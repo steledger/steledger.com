@@ -505,9 +505,16 @@ def build_feed() -> str:
     )
 
 
+# Content Signals (contentsignals.org): yes to all three — this site exists to be
+# found, read by agents, and known to models. It goes in EVERY group: a crawler
+# obeys only the group that names it most specifically, so a line under "*"
+# alone would never reach GPTBot, ClaudeBot and the rest listed below.
+CONTENT_SIGNAL = "Content-Signal: search=yes, ai-input=yes, ai-train=yes"
+
+
 def build_robots() -> str:
     bots = ["*", "GPTBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "Google-Extended", "CCBot"]
-    blocks = "\n\n".join(f"User-agent: {b}\nAllow: /" for b in bots)
+    blocks = "\n\n".join(f"User-agent: {b}\n{CONTENT_SIGNAL}\nAllow: /" for b in bots)
     return blocks + f"\n\nSitemap: {SITE_URL}/sitemap.xml\n"
 
 
