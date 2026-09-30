@@ -11,6 +11,7 @@
 - [NVS data model](https://api.steledger.com/docs/nvs.md): record names, ownership, expiry
 - [OpenAPI spec](https://api.steledger.com/openapi.json): full machine-readable contract
 - [Full documentation corpus](https://api.steledger.com/llms-full.txt)
+- [auth.md](https://steledger.com/auth.md): how an agent gets credentials — OAuth via MCP, device flow, signature login
 
 ## This site
 

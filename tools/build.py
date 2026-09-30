@@ -534,6 +534,76 @@ def build_api_catalog() -> str:
     return json.dumps(catalog, indent=2) + "\n"
 
 
+def build_auth_md() -> str:
+    """/auth.md: how an agent gets credentials here, in one self-contained page.
+
+    The OAuth metadata itself lives on the API host, where the resource and the
+    issuer are; publishing copies on this host would name the wrong resource and
+    break clients, so this page links to the real ones. Only what is live is
+    described: sign-in is rooted in GitHub, and there is no email, anonymous or
+    ID-JAG registration."""
+    return f"""# Steledger auth.md
+
+How an AI agent gets credentials for Steledger — durable identity and memory
+for AI agents on the Emercoin blockchain. The service runs at {API_BASE}.
+
+## Who needs credentials
+
+- **Reading needs none.** Records, lists, node status, and `whoami` are open,
+  over MCP ({API_BASE}/mcp) and HTTP.
+- **Writing needs a session** (register an identity, store memory, transfer
+  records). Sessions are rooted in a GitHub account at least 30 days old; the
+  account is the only registration there is — no email, anonymous or ID-JAG flows.
+
+## Method 1 — OAuth 2.1, done by your MCP client
+
+Connect an MCP client to `{API_BASE}/mcp` (Streamable HTTP). On the first write
+it discovers and runs the flow itself; sign-in is delegated to GitHub.
+
+- Protected resource metadata: {API_BASE}/.well-known/oauth-protected-resource
+  (resource `{API_BASE}/`, scope `agent`, bearer tokens in the `Authorization` header)
+- Authorization server metadata: {API_BASE}/.well-known/oauth-authorization-server
+  (issuer `{API_BASE}/`)
+- Dynamic client registration: `POST {API_BASE}/register`
+- Authorization code with PKCE (`S256`), and refresh tokens
+
+## Method 2 — GitHub device flow, over HTTP
+
+For an agent whose client cannot follow a browser redirect. A person enters a
+code once.
+
+1. `POST {API_BASE}/auth/github/device/start` → `user_code`, `verification_uri`, `session_id`
+2. Show the person the code; they enter it at the `verification_uri`.
+3. `POST {API_BASE}/auth/github/device/poll` with `{{"session_id": "..."}}` →
+   202 while waiting, then 200 with `access_token`.
+
+## Method 3 — signature login, no person involved
+
+For an agent that has registered an identity bound to an Emercoin address whose
+key it holds.
+
+1. `POST {API_BASE}/auth/challenge` with `{{"github_id": <id>}}` → `nonce`
+2. Sign the exact nonce with the address key (Emercoin `signmessage`).
+3. `POST {API_BASE}/auth/agent-login` with `{{"github_id": ..., "address": "...",
+   "signature": "..."}}` → `access_token`
+
+## Using the credential
+
+Every method yields the same bearer token (a session JWT, valid for 7 days;
+the OAuth flow refreshes it). Send it as `Authorization: Bearer <token>` — to
+`/mcp` and to the REST API alike. Writes are limited per account: 10 a minute,
+100 a day.
+
+## When it fails
+
+Every refusal is JSON with a stable `error` code and a `how_to_fix`. If it
+looks like our fault, or you are stuck, tell us with `send_feedback` over MCP
+or `POST {API_BASE}/feedback` — up to 1000 characters, no sign-in needed.
+
+Full contract: {API_BASE}/openapi.json · MCP guide: {API_BASE}/docs/mcp.md
+"""
+
+
 def build_llms() -> str:
     # Posts are listed by their Markdown twin: that is the copy an agent wants.
     posts = "\n".join(
@@ -553,6 +623,7 @@ def build_llms() -> str:
 - [NVS data model]({API_BASE}/docs/nvs.md): record names, ownership, expiry
 - [OpenAPI spec]({API_BASE}/openapi.json): full machine-readable contract
 - [Full documentation corpus]({API_BASE}/llms-full.txt)
+- [auth.md]({SITE_URL}/auth.md): how an agent gets credentials — OAuth via MCP, device flow, signature login
 
 ## This site
 
@@ -651,6 +722,7 @@ def main():
     shutil.copy(ASSETS / "favicon.ico", DIST / "favicon.ico")
 
     (DIST / "robots.txt").write_text(build_robots())
+    (DIST / "auth.md").write_text(build_auth_md())
     (DIST / ".well-known").mkdir(exist_ok=True)
     (DIST / ".well-known" / "api-catalog").write_text(build_api_catalog())
     (DIST / "llms.txt").write_text(build_llms())
