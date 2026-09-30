@@ -23,6 +23,12 @@
           "href": "https://api.steledger.com/llms.txt",
           "type": "text/plain"
         }
+      ],
+      "status": [
+        {
+          "href": "https://api.steledger.com/status",
+          "type": "application/json"
+        }
       ]
     }
   ]
