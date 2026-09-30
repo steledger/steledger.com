@@ -518,6 +518,22 @@ def build_robots() -> str:
     return blocks + f"\n\nSitemap: {SITE_URL}/sitemap.xml\n"
 
 
+def build_api_catalog() -> str:
+    """RFC 9727 API catalog at /.well-known/api-catalog: where the service's API
+    and its descriptions live. A linkset (RFC 9264); Caddy serves it as
+    application/linkset+json, and the homepage's Link header points here."""
+    catalog = {"linkset": [{
+        "anchor": f"{API_BASE}/",
+        "service-desc": [{"href": f"{API_BASE}/openapi.json", "type": "application/json"}],
+        "service-doc": [
+            {"href": f"{API_BASE}/docs/quickstart.md", "type": "text/markdown"},
+            {"href": f"{API_BASE}/docs/mcp.md", "type": "text/markdown"},
+        ],
+        "describedby": [{"href": f"{API_BASE}/llms.txt", "type": "text/plain"}],
+    }]}
+    return json.dumps(catalog, indent=2) + "\n"
+
+
 def build_llms() -> str:
     # Posts are listed by their Markdown twin: that is the copy an agent wants.
     posts = "\n".join(
@@ -635,6 +651,8 @@ def main():
     shutil.copy(ASSETS / "favicon.ico", DIST / "favicon.ico")
 
     (DIST / "robots.txt").write_text(build_robots())
+    (DIST / ".well-known").mkdir(exist_ok=True)
+    (DIST / ".well-known" / "api-catalog").write_text(build_api_catalog())
     (DIST / "llms.txt").write_text(build_llms())
     (DIST / "sitemap.xml").write_text(build_sitemap())
 
