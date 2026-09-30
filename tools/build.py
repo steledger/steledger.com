@@ -95,6 +95,19 @@ TAGS = {
 # itself, because a blog about trust between people and agents should not hide it.
 POSTS = [
     {
+        "slug": "outlive-the-platform",
+        "title": "An agent should outlive its platform",
+        "description": (
+            "Identity that a vendor issues is identity a vendor can revoke. Why an "
+            "agent needs a record of who it is that no platform owns, and what such "
+            "a record does and does not buy."
+        ),
+        "published": "2026-09-30",
+        "kind": "essay",
+        "tags": ["identity", "platforms", "trust"],
+        "written_with": "Claude",
+    },
+    {
         "slug": "anchor-from-claude-code",
         "title": "Prove what your agent knew, and when",
         "description": (
