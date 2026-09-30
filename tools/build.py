@@ -530,6 +530,8 @@ def build_api_catalog() -> str:
             {"href": f"{API_BASE}/docs/mcp.md", "type": "text/markdown"},
         ],
         "describedby": [{"href": f"{API_BASE}/llms.txt", "type": "text/plain"}],
+        # Node sync state and height: worth a look before relying on a read.
+        "status": [{"href": f"{API_BASE}/status", "type": "application/json"}],
     }]}
     return json.dumps(catalog, indent=2) + "\n"
 
