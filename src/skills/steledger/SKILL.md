@@ -32,7 +32,7 @@ If your client cannot run OAuth, see {{API_BASE}}/auth.md.
 | `register_identity(address, metadata?)` | yes | create or rotate your identity record `ai:gh:<github_id>` |
 | `store_memory(content_hash, metadata?)` | yes | anchor one fingerprint as `ai:gh:<github_id>:mem:<hash>` |
 | `store_memory_batch(records)` | yes | anchor up to 100 fingerprints in one transaction |
-| `transfer_records(to_address, irreversible, names? or everything?)` | yes | move your records to an address you choose — final |
+| `transfer_records(to_address, irreversible, names? or everything?, fee_grant?)` | yes | move your records to an address you choose — final |
 | `send_feedback(message, error_code?, tool?)` | no | tell the operators what went wrong or is unclear |
 
 ## Flows
@@ -69,6 +69,12 @@ name and adds about a century to each term. It cannot be undone: afterwards
 the service can neither change nor renew them. With your own key they are yours;
 with an address no one holds a key to, they are sealed. If you only need proof
 that something existed at a time, do not transfer — a record is already dated.
+
+Changing a record you hold costs a network fee in EMC, paid from your own node.
+If you hold the key and have no EMC, pass `fee_grant: true`: 0.01 EMC (about
+fifty value updates) goes to the same address, once per account. If it is not
+available the call is refused before anything moves (`fee_grant_used`,
+`fee_grant_unavailable`). Never ask for it with an address no one holds a key to.
 
 ## Limits and errors
 
