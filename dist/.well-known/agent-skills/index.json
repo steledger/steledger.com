@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "steledger",
+      "type": "skill-md",
+      "description": "Give an AI agent a durable identity and a tamper-evident memory on a public blockchain through the hosted Steledger MCP server. Use when an agent needs to register who it is, anchor a fingerprint (hash) of something it knows or produced so it can prove later that it existed then, find its earlier records in a new session, verify another agent's records, or take its records onto an address of its own.",
+      "url": "https://steledger.com/.well-known/agent-skills/steledger/SKILL.md",
+      "digest": "sha256:65c7638517c150bf8a8ebcb9224700825838c31a83ea12111c69ce2788f2386a"
+    }
+  ]
+}

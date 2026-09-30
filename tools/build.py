@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Assemble dist/ from src/ + partials/ + assets/. Stdlib only, no template engine."""
+import hashlib
 import json
 import shutil
 import sys
@@ -606,6 +607,37 @@ Full contract: {API_BASE}/openapi.json · MCP guide: {API_BASE}/docs/mcp.md
 """
 
 
+SKILLS_SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json"
+
+
+def build_agent_skills() -> None:
+    """Agent Skills Discovery (v0.2.0): each src/skills/<name>/SKILL.md is filled
+    like any page and published under /.well-known/agent-skills/<name>/, and the
+    index names it with the SHA-256 of exactly the bytes served."""
+    root = DIST / ".well-known" / "agent-skills"
+    skills = []
+    for src in sorted((SRC / "skills").glob("*/SKILL.md")):
+        name = src.parent.name
+        body = fill(src.read_text(), TOKENS).encode()
+        out = root / name / "SKILL.md"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(body)
+        front = body.decode().split("---", 2)[1]
+        description = next(
+            line.split(":", 1)[1].strip() for line in front.splitlines() if line.startswith("description:")
+        )
+        skills.append({
+            "name": name,
+            "type": "skill-md",
+            "description": description,
+            "url": f"{SITE_URL}/.well-known/agent-skills/{name}/SKILL.md",
+            "digest": "sha256:" + hashlib.sha256(body).hexdigest(),
+        })
+    (root / "index.json").write_text(
+        json.dumps({"$schema": SKILLS_SCHEMA, "skills": skills}, indent=2) + "\n"
+    )
+
+
 def build_llms() -> str:
     # Posts are listed by their Markdown twin: that is the copy an agent wants.
     posts = "\n".join(
@@ -727,6 +759,7 @@ def main():
     (DIST / "auth.md").write_text(build_auth_md())
     (DIST / ".well-known").mkdir(exist_ok=True)
     (DIST / ".well-known" / "api-catalog").write_text(build_api_catalog())
+    build_agent_skills()
     (DIST / "llms.txt").write_text(build_llms())
     (DIST / "sitemap.xml").write_text(build_sitemap())
 
