@@ -28,6 +28,15 @@ EXPLORER = "https://explorer.emercoin.com"
 # the old URL, but a published link should name where the code actually lives.
 SOURCE_REPO = "https://github.com/steledger/steledger-gateway"
 
+# The project's own accounts elsewhere: the footer links X, and both go into
+# `sameAs` so search engines and LLMs tie them to this site as one entity.
+X_URL = "https://x.com/steledger"
+GITHUB_ORG = "https://github.com/steledger"
+
+# The project, not a company: there is no legal entity behind the site.
+PUBLISHER = {"@type": "Organization", "name": "Steledger", "url": SITE_URL + "/",
+             "sameAs": [X_URL, GITHUB_ORG]}
+
 # The one live record the site offers as evidence. Re-write it on-chain before its
 # term lapses, then update the txid here and rebuild — a lapsed record on a page
 # about durability is worse than no record at all. Nothing else references these.
@@ -143,6 +152,7 @@ PAGES = {
                         "Durable identity and memory for AI agents, anchored "
                         "on the Emercoin blockchain."
                     ),
+                    "publisher": PUBLISHER,
                 },
                 {
                     "@type": "WebAPI",
@@ -258,8 +268,6 @@ def tag_links_md(tags: list) -> str:
 
 
 BLOG_REF = {"@type": "Blog", "name": f"Steledger {BLOG_TITLE}", "url": SITE_URL + "/blog/"}
-# The project, not a company: there is no legal entity behind the site.
-PUBLISHER = {"@type": "Organization", "name": "Steledger", "url": SITE_URL + "/"}
 
 
 def post_meta(post: dict) -> dict:
