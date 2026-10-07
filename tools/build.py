@@ -527,6 +527,24 @@ def build_robots() -> str:
     return blocks + f"\n\nSitemap: {SITE_URL}/sitemap.xml\n"
 
 
+# RFC 9116 makes Expires mandatory and wants it under a year out. A fixed date, so a
+# rebuild does not churn dist/; check.py fails once it is under 60 days away. The
+# api host serves its own copy from the gateway repo (site/.well-known/) — move
+# both dates together.
+SECURITY_TXT_EXPIRES = "2027-10-01T00:00:00Z"
+
+
+def build_security_txt() -> str:
+    """RFC 9116: where to report a vulnerability. Scanners and researchers look
+    here before they look anywhere else."""
+    return (
+        "Contact: mailto:security@steledger.com\n"
+        f"Expires: {SECURITY_TXT_EXPIRES}\n"
+        "Preferred-Languages: en\n"
+        f"Canonical: {SITE_URL}/.well-known/security.txt\n"
+    )
+
+
 def build_api_catalog() -> str:
     """RFC 9727 API catalog at /.well-known/api-catalog: where the service's API
     and its descriptions live. A linkset (RFC 9264); Caddy serves it as
@@ -767,6 +785,7 @@ def main():
     (DIST / "auth.md").write_text(build_auth_md())
     (DIST / ".well-known").mkdir(exist_ok=True)
     (DIST / ".well-known" / "api-catalog").write_text(build_api_catalog())
+    (DIST / ".well-known" / "security.txt").write_text(build_security_txt())
     build_agent_skills()
     (DIST / "llms.txt").write_text(build_llms())
     (DIST / "sitemap.xml").write_text(build_sitemap())
