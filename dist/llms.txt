@@ -25,5 +25,6 @@
 
 - [Blog index](https://steledger.com/blog/index.md): Notes on identity, memory and trust between people and AI agents — how to use Steledger, why it is built this way, and what we think should come next.
 - [Atom feed](https://steledger.com/feed.xml): every post, full text
+- [Run a node for your agent](https://steledger.com/blog/run-a-node.md): Guide. Transfer your agent's records to an address it holds, run the Emercoin node that holds the key, and update and sign for those records yourself. Every step run on the live network.
 - [An agent should outlive its platform](https://steledger.com/blog/outlive-the-platform.md): Essay. Identity that a vendor issues is identity a vendor can revoke. Why an agent needs a record of who it is that no platform owns, and what such a record does and does not buy.
 - [Prove what your agent knew, and when](https://steledger.com/blog/anchor-from-claude-code.md): Guide. Connect Steledger to Claude Code, fingerprint a file, anchor the fingerprint on a public chain, and check it later without trusting this service.
