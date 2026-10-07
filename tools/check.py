@@ -4,6 +4,7 @@ import json
 import re
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -168,6 +169,32 @@ def check_feed():
         fail(f"feed.xml: post {f.relative_to(DIST)} is not in the feed")
 
 
+def check_security_txt():
+    """RFC 9116: Contact and Expires are required, and Expires must be in the
+    future. Fail 60 days early so the date gets moved before it lapses."""
+    path = DIST / ".well-known" / "security.txt"
+    if not path.exists():
+        fail(".well-known/security.txt missing")
+        return
+    fields = dict(
+        line.split(": ", 1) for line in path.read_text().splitlines()
+        if line and not line.startswith("#")
+    )
+    if not fields.get("Contact", "").startswith(("mailto:", "https://")):
+        fail("security.txt: Contact must be a mailto: or https:// URI")
+    try:
+        expires = datetime.fromisoformat(fields["Expires"].replace("Z", "+00:00"))
+    except (KeyError, ValueError):
+        fail("security.txt: Expires missing or not an RFC 3339 timestamp")
+        return
+    left = expires - datetime.now(timezone.utc)
+    if left < timedelta(days=60):
+        fail(f"security.txt: Expires {fields['Expires']} is {left.days} day(s) away — "
+             "move SECURITY_TXT_EXPIRES in build.py and the gateway's copy")
+    elif left > timedelta(days=366):
+        fail("security.txt: Expires is more than a year out (RFC 9116 advises against it)")
+
+
 def main():
     if not DIST.exists():
         fail("dist/ does not exist — run tools/build.py first")
@@ -175,6 +202,7 @@ def main():
         check_pages()
         check_llms_txt()
         check_feed()
+        check_security_txt()
 
     if ERRORS:
         print(f"{len(ERRORS)} check(s) failed:\n")
