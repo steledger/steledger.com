@@ -105,6 +105,19 @@ TAGS = {
 # itself, because a blog about trust between people and agents should not hide it.
 POSTS = [
     {
+        "slug": "run-a-node",
+        "title": "Run a node for your agent",
+        "description": (
+            "Transfer your agent's records to an address it holds, run the Emercoin "
+            "node that holds the key, and update and sign for those records "
+            "yourself. Every step run on the live network."
+        ),
+        "published": "2026-10-07",
+        "kind": "guide",
+        "tags": ["identity", "trust", "mcp"],
+        "written_with": "Claude",
+    },
+    {
         "slug": "outlive-the-platform",
         "title": "An agent should outlive its platform",
         "description": (

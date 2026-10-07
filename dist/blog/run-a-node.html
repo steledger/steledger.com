@@ -1,0 +1,168 @@
+<!doctype html><html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Transfer your agent's records to an address it holds, run the Emercoin node that holds the key, and update and sign for those records yourself. Every step run on the live network.">
+  <link rel="canonical" href="https://steledger.com/blog/run-a-node.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Steledger">
+  <meta property="og:title" content="Run a node for your agent — Steledger">
+  <meta property="og:description" content="Transfer your agent's records to an address it holds, run the Emercoin node that holds the key, and update and sign for those records yourself. Every step run on the live network.">
+  <meta property="og:url" content="https://steledger.com/blog/run-a-node.html">
+  <meta property="og:image" content="https://steledger.com/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Steledger">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="alternate" type="application/atom+xml" title="Steledger Blog" href="/feed.xml">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Run a node for your agent", "description": "Transfer your agent's records to an address it holds, run the Emercoin node that holds the key, and update and sign for those records yourself. Every step run on the live network.", "url": "https://steledger.com/blog/run-a-node.html", "mainEntityOfPage": "https://steledger.com/blog/run-a-node.html", "datePublished": "2026-10-07", "dateModified": "2026-10-07", "inLanguage": "en", "articleSection": "Guide", "keywords": ["Identity", "Trust", "MCP"], "author": {"@type": "Organization", "name": "Steledger", "url": "https://steledger.com/", "sameAs": ["https://x.com/steledger", "https://github.com/steledger"]}, "publisher": {"@type": "Organization", "name": "Steledger", "url": "https://steledger.com/", "sameAs": ["https://x.com/steledger", "https://github.com/steledger"]}, "isPartOf": {"@type": "Blog", "name": "Steledger Blog", "url": "https://steledger.com/blog/"}}</script>
+  <title>Run a node for your agent — Steledger</title>
+  <link rel="alternate" type="text/markdown" href="/blog/run-a-node.md">
+  <meta property="article:published_time" content="2026-10-07">
+  <meta property="article:section" content="Guide">
+  <meta property="article:tag" content="Identity">
+  <meta property="article:tag" content="Trust">
+  <meta property="article:tag" content="MCP">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header">
+  <a class="wordmark" href="/">
+    <img class="mark" src="/assets/logo.svg" alt="" width="22" height="22">
+    <span>Steledger</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="/blog/">Blog</a>
+    <a href="https://api.steledger.com/docs/quickstart.md">Docs</a>
+    <a href="https://github.com/steledger/steledger-gateway">GitHub</a>
+  </nav>
+</header>
+<main id="content">
+<article class="post">
+<header class="post-header">
+  <p class="post-meta"><a href="/blog/">Blog</a> · Guide · <time datetime="2026-10-07">7 October 2026</time></p>
+  <h1>Run a node for your agent</h1>
+  <p class="lead">Transfer your agent's records to an address it holds, run the Emercoin node that holds the key, and update and sign for those records yourself. Every step run on the live network.</p>
+</header>
+<p>By default the gateway holds your agent's records: it writes them, pays for them, and is the only party that can change them. <code>transfer_records</code> hands them to an address you choose, and from then on nobody but the holder of that address's key can change them — the gateway included. This guide sets up the other half: an Emercoin node of your own, holding that key, so the agent can still update what it owns.</p>
+<p>Every command below was run for this post, on a fresh machine, against the live network, on 30 September 2026; the wallet encryption in step 2 was checked again on 7 October. The records it produced are linked at the end.</p>
+
+<h2>Do you need this?</h2>
+<p>Probably not, if all you want is proof that something existed at a given time. A record the gateway holds is already dated and already public. Run a node when:</p>
+<ul>
+  <li>the agent must <strong>update</strong> a record it owns — an identity whose value changes, a pointer that moves;</li>
+  <li>the agent must <strong>prove control</strong> of its records by signing with their key;</li>
+  <li>you want no service in the path at all, not even for reads.</li>
+</ul>
+<p>A record you transfer and never touch again needs no node: a transfer adds about a century to its term, so it does not need renewing either.</p>
+
+<h2>What it costs</h2>
+<ul>
+  <li><strong>Disk:</strong> about 1.2 GB for the whole chain, growing slowly. There is no pruned mode.</li>
+  <li><strong>Time:</strong> our fresh sync, genesis to the tip, took 20 minutes on a fast workstation with a good connection; expect up to an hour and a half on a smaller machine. The node pulled blocks from peers on the public internet and found them on its own.</li>
+  <li><strong>Fees:</strong> each change to a record is a transaction with a network fee, paid in EMC from the node's wallet. In our run a value update cost <strong>0.0002 EMC</strong>. Extending a term costs more, growing with the square root of the days added: a few thousandths of an EMC even for a century.</li>
+</ul>
+<p>A node that has never held EMC cannot pay those fees. If yours has none, ask for network-fee funds when you transfer (step 3): the gateway then sends 0.01 EMC to the same address, once per GitHub account.</p>
+
+<h2>1. Start the node</h2>
+<p>The official image is <code>emercoin/core</code> on Docker Hub. Give it a small configuration with RPC bound to the container's loopback, so the wallet is reachable only through <code>docker exec</code>:</p>
+<pre><code>mkdir -p ~/emercoin
+cat &gt; ~/emercoin/emercoin.conf &lt;&lt;'EOF'
+server=1
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+rpcuser=agent
+rpcpassword=&lt;a long random string&gt;
+txindex=1
+EOF
+
+docker volume create emercoin-data
+docker run -d --name emercoin --restart unless-stopped \
+  -v emercoin-data:/srv/emercoind \
+  -v ~/emercoin/emercoin.conf:/srv/emercoind/emercoin.conf:ro \
+  emercoin/core:0.8.5
+
+alias emc='docker exec emercoin emercoin-cli -datadir=/srv/emercoind'</code></pre>
+<p><code>txindex=1</code> keeps an index of every transaction, which name lookups rely on. Nothing is published to the host: the node makes outbound connections only. If you want to help the network, publish the peer port with <code>-p 6661:6661</code>.</p>
+<p>Watch it sync:</p>
+<pre><code>emc getblockchaininfo</code></pre>
+<p>It is done when <code>blocks</code> equals <code>headers</code> and <code>initialblockdownload</code> is <code>false</code>. Nothing that follows works reliably before that.</p>
+
+<h2>2. Make an address and back up its key</h2>
+<pre><code>emc getnewaddress
+em1qp4mcgztr8zqlw062mgesnyu3w53hqq47nu38mw</code></pre>
+<p>The wallet is created on first start and is <strong>not encrypted</strong>. Before anything of value lands in it:</p>
+<pre><code>emc encryptwallet "&lt;passphrase&gt;"
+emc backupwallet /srv/emercoind/wallet-backup.dat
+docker cp emercoin:/srv/emercoind/wallet-backup.dat .</code></pre>
+<p>Encrypt first, then back up: encrypting generates a new HD seed, so a backup taken before it does not cover addresses made after. Keep the backup and the passphrase apart, off this machine. From now on the wallet is locked; unlock it for a minute before each write or signature with <code>emc walletpassphrase "&lt;passphrase&gt;" 60</code>, or the node answers <code>Please enter the wallet passphrase with walletpassphrase first</code>. Lose the key and the records it holds cannot be changed or renewed by anyone until their term ends. There is no recovery, and the gateway cannot help: it no longer holds them.</p>
+
+<h2>3. Transfer the records to it</h2>
+<p>From your MCP client, signed in, ask the agent:</p>
+<pre><code>Transfer ai:gh:&lt;github_id&gt;:mem:&lt;hash&gt; to em1q… with steledger.
+Set irreversible to true.</code></pre>
+<p>The agent calls <code>transfer_records</code>. To move the identity and every memory at once, it passes <code>everything: true</code> instead of names. If the node's wallet is empty, add <code>fee_grant: true</code>: 0.01 EMC for network fees then goes to the same address in a separate transaction — enough for about fifty value updates. It is given once per account, within a daily budget, and refused before anything moves if it is not available, so you can decide to transfer without it. Over HTTP the same call is <code>POST https://api.steledger.com/nvs/transfer</code>. The transfer is one transaction; once its block confirms, the node sees the names as its own:</p>
+<pre><code>emc name_show ai:gh:&lt;github_id&gt;:mem:&lt;hash&gt;</code></pre>
+<p><code>address</code> in the answer is your address. The name's own output carries 0.0001 EMC with it; that amount belongs to the name and is not spendable as a fee.</p>
+
+<h2>4. Update a record</h2>
+<p>A record's value is JSON written by the gateway. Keep its shape, change what you need, and pass the <strong>current address and an empty string</strong> after the days:</p>
+<pre><code>emc name_update ai:gh:&lt;github_id&gt;:mem:&lt;hash&gt; '&lt;new value&gt;' 0 em1q… ""</code></pre>
+<ul>
+  <li><code>0</code> days changes the value without extending the term. A positive number adds that many days.</li>
+  <li>The address matters. Leave it out and the wallet moves the name to a fresh address of its own. The name stays yours, but it no longer sits where you said it would, and a signature from the old address stops matching the record.</li>
+  <li>The empty string is the value type. Always pass it explicitly: anything else is read by the node as a file path, and that file's contents are written on-chain.</li>
+</ul>
+<p>The command returns a transaction id. The gateway reads your update like any other: <code>https://api.steledger.com/nvs/&lt;name&gt;</code> shows it under <code>pending_update</code> at once and as the record itself after the next block.</p>
+<h3>If the wallet is empty</h3>
+<p>With nothing spendable, the node refuses the update with a message that does not say why:</p>
+<pre><code>error code: -32603
+error message:
+unkown error</code></pre>
+<p>(Spelled that way by the node.) Check <code>emc getbalances</code> before you suspect anything else.</p>
+
+<h2>5. Prove it is yours</h2>
+<p>Sign any message with the address that holds the record:</p>
+<pre><code>emc signmessage em1q… "I hold ai:gh:&lt;github_id&gt;:mem:&lt;hash&gt;"</code></pre>
+<p>Anyone can check the signature against the address in the record, with their own node or any Emercoin wallet:</p>
+<pre><code>emc verifymessage em1q… "&lt;signature&gt;" "I hold ai:gh:&lt;github_id&gt;:mem:&lt;hash&gt;"
+true</code></pre>
+<p>This is the proof the gateway cannot give while it holds a record: it shows control of the key, not just the GitHub account that wrote it.</p>
+
+<h2>The records written for this post</h2>
+<p><code>ai:gh:3772563:mem:aae0dfa2109894288bd5dc1765d29163ae9d0bf1f58e25f7dc91f0a552c002e7</code> was stored through the gateway, transferred to a fresh node's address, and updated twice from that node — once without an address, which moved it, and once with one, which kept it. Read it at <a href="https://api.steledger.com/nvs/ai:gh:3772563:mem:aae0dfa2109894288bd5dc1765d29163ae9d0bf1f58e25f7dc91f0a552c002e7">https://api.steledger.com/nvs/ai:gh:3772563:mem:aae0dfa2…</a>, or follow its transactions in <a href="https://explorer.emercoin.com">a public block explorer</a>.</p>
+<p>A second record, <code>ai:gh:3772563:mem:f92717b71a238de591566fdfb3cdf141946d94410da91f586ebea5b524723747</code>, went the way this guide suggests for an empty wallet: transferred with <code>fee_grant: true</code>, which sent 0.01 EMC to the same address, then updated from the node with nothing but those funds — 0.0002 EMC in fees, the name kept on its address. Read it at <a href="https://api.steledger.com/nvs/ai:gh:3772563:mem:f92717b71a238de591566fdfb3cdf141946d94410da91f586ebea5b524723747">https://api.steledger.com/nvs/ai:gh:3772563:mem:f92717b7…</a>.</p>
+
+<h2>Where next</h2>
+<ul>
+  <li>What transfer does and does not change: the <a href="https://api.steledger.com/docs/mcp.md">MCP guide</a>.</li>
+  <li>Names, terms and fees: the <a href="https://api.steledger.com/docs/nvs.md">NVS data model</a>.</li>
+  <li>The node's source: <a href="https://github.com/emercoin/emercoin">emercoin/emercoin</a>.</li>
+</ul>
+<footer class="post-footer">
+  <p>Topics: <a href="/blog/tags/identity.html">Identity</a>, <a href="/blog/tags/trust.html">Trust</a>, <a href="/blog/tags/mcp.html">MCP</a>.</p>
+  <p>Written with Claude, an AI model, and published by Steledger.</p>
+</footer>
+</article>
+</main>
+<footer class="site-footer">
+  <nav aria-label="This site">
+    <ul class="footer-links">
+      <li><a href="/blog/run-a-node.md">This page as Markdown</a></li>
+      <li><a href="/privacy.html">Privacy and security</a></li>
+      <li><a href="/feed.xml">Blog feed (Atom)</a></li>
+      <li><a href="/llms.txt">llms.txt</a></li>
+      <li><a href="https://x.com/steledger">X: @steledger</a></li>
+    </ul>
+  </nav>
+  <p class="fineprint">
+    Questions and issues: <a href="mailto:hello@steledger.com">hello@steledger.com</a>.
+    Security reports: <a href="mailto:security@steledger.com">security@steledger.com</a>.
+  </p>
+</footer>
+</body></html>
