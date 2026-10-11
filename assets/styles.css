@@ -161,6 +161,11 @@ main {
   max-width: 34em;
 }
 
+.hero .use-case {
+  color: var(--ink-soft);
+  max-width: 34em;
+}
+
 .hero .tagline {
   margin-top: 1.5rem;
   padding-left: 0.9rem;

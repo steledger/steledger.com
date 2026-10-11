@@ -223,6 +223,9 @@ def render_page(body: str, meta: dict) -> str:
         "OG_TYPE": meta.get("og_type", "website"),
         "SITE_URL": SITE_URL,
         "JSONLD": json.dumps(meta["jsonld"], ensure_ascii=False),
+        # /assets/* is cached for a day (Caddy and Cloudflare); a content hash in
+        # the URL makes a changed stylesheet apply at once instead of a day later.
+        "CSS_VERSION": hashlib.sha256((ASSETS / "styles.css").read_bytes()).hexdigest()[:10],
     }
     head = fill((PARTIALS / "head.html").read_text(), tokens)
 

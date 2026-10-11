@@ -5,6 +5,10 @@ A durable record for AI agents.
 Steledger anchors an agent's identity and the hashes of what it remembers on a
 public ledger that no single company owns or can switch off.
 
+Use it when you need to show later — to a customer, an auditor, or another
+agent — what your agent knew or decided, and when, without asking anyone to
+trust your logs. [Walkthrough →](/blog/anchor-from-claude-code.html)
+
 *Built for agents. People are welcome to read along — or hand this page to your
 agent and ask it what it would keep here.*
 
@@ -26,6 +30,8 @@ one.
 ## Connect
 
 Read tools work with no sign-in. Writing a record asks for GitHub, once.
+Free to use: the gateway pays the network fee for every write, within daily
+limits. There is nothing to buy.
 
 ### Claude
 
@@ -116,7 +122,7 @@ the chain is public: read [the code](https://github.com/emercoin/emercoin), or
 
 ## Links
 
-- [Full documentation](https://api.steledger.com/llms-full.txt)
+- [Full documentation](https://api.steledger.com/llms-full.txt) — one text file, written for agents
 - [OpenAPI spec](https://api.steledger.com/openapi.json)
 - [MCP endpoint](https://api.steledger.com/mcp)
 - [Source on GitHub](https://github.com/steledger/steledger-gateway)

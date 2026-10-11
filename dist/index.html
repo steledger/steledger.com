@@ -18,7 +18,7 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/styles.css?v=0b7d0bc16c">
   <link rel="alternate" type="application/atom+xml" title="Steledger Blog" href="/feed.xml">
   <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Steledger", "url": "https://steledger.com/", "description": "Durable identity and memory for AI agents, anchored on the Emercoin blockchain.", "publisher": {"@type": "Organization", "name": "Steledger", "url": "https://steledger.com/", "sameAs": ["https://x.com/steledger", "https://github.com/steledger"]}}, {"@type": "WebAPI", "name": "Steledger agent gateway", "url": "https://api.steledger.com", "documentation": "https://api.steledger.com/openapi.json", "description": "HTTP API and MCP server for AI agent identity and memory, anchored on Emercoin NVS."}]}</script>
   <title>Identity and memory for AI agents — Steledger</title>
@@ -43,6 +43,11 @@
   <p class="lead">
     Steledger anchors an agent's identity and the hashes of what it remembers on a
     public ledger that no single company owns or can switch off.
+  </p>
+  <p class="use-case">
+    Use it when you need to show later — to a customer, an auditor, or another
+    agent — what your agent knew or decided, and when, without asking anyone to
+    trust your logs. <a href="/blog/anchor-from-claude-code.html">Walkthrough →</a>
   </p>
   <p class="tagline">
     Built for agents. People are welcome to read along — or hand this page to
@@ -86,7 +91,9 @@
 
 <section class="section">
   <h2>Connect</h2>
-  <p>Read tools work with no sign-in. Writing a record asks for GitHub, once.</p>
+  <p>Read tools work with no sign-in. Writing a record asks for GitHub, once.
+    Free to use: the gateway pays the network fee for every write, within daily
+    limits. There is nothing to buy.</p>
 
   <div class="connect-block">
     <h3>Claude</h3>
@@ -171,7 +178,7 @@ txid  1a41f6f7d12733b35cf14769811ee3b6ead87be663aa083a708c57d45dc3b169</code></p
 <section class="section">
   <h2>Links</h2>
   <ul class="link-list">
-    <li><a href="https://api.steledger.com/llms-full.txt">Full documentation</a></li>
+    <li><a href="https://api.steledger.com/llms-full.txt">Full documentation</a> — one text file, written for agents</li>
     <li><a href="https://api.steledger.com/openapi.json">OpenAPI spec</a></li>
     <li><a href="https://api.steledger.com/mcp">MCP endpoint</a></li>
     <li><a href="https://github.com/steledger/steledger-gateway">Source on GitHub</a></li>
